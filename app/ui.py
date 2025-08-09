@@ -2,12 +2,13 @@
 
 import os
 from PySide6.QtGui import (Qt,QAction, QIcon, QKeySequence, QPalette,QColor,)
-from PySide6.QtWidgets import (QMainWindow, QTabWidget, QWidget,
+from PySide6.QtWidgets import (QMainWindow, QTabWidget, QWidget,QInputDialog,
                               QVBoxLayout,QApplication,QPushButton,QToolBar,
                               QLabel, QFileDialog, QMessageBox, QStatusBar)
 from PySide6.QtCore import QSize,Signal
 
 from app.utils import MarkdownTab
+from app.filemanager import FileManager, rename_with_pathlib
 import time
 
 class MarkdownEditor(QMainWindow):
@@ -22,9 +23,14 @@ class MarkdownEditor(QMainWindow):
         # self.setup_toolbar()
         self.setup_statusbar()
         self.dark_mode = False
+        self.fm = FileManager()
         
         # 初始标签页
-        self.add_new_tab()
+        if len(self.fm.FileList) == 0:
+            self.add_new_tab()
+        else:
+            for i in self.fm.FileList:
+                self.add_new_tab(i)
 
         self.themeChanged.connect(self.update_theme)
     
@@ -76,6 +82,12 @@ class MarkdownEditor(QMainWindow):
         save_as_action.triggered.connect(self.save_as_current)
         file_menu.addAction(save_as_action)
         
+        # 重命名
+        rename_action = QAction("重命名", self)
+        rename_action.setShortcut(QKeySequence("Ctrl+U"))
+        rename_action.triggered.connect(self.rename)
+        file_menu.addAction(rename_action)
+
         file_menu.addSeparator()
         
         # 退出
@@ -208,6 +220,9 @@ class MarkdownEditor(QMainWindow):
     
     def add_new_tab(self, file_path=None):
         """添加新标签页"""
+
+        if not file_path:
+            file_path = os.path.realpath(os.path.join(self.fm.path, f"newdoc_{round(time.time())}"))
         tab = MarkdownTab(self, file_path, dark_mode=self.dark_mode)
         
         # 获取标签索引
@@ -390,6 +405,22 @@ class MarkdownEditor(QMainWindow):
     def closeEvent(self, event):
         event.ignore()
         self.hide()
+
+    def rename(self):
+        file_path = self.get_current_tab().file_path
+        file_name = file_path.split(self.fm.path)[-1]
+        text, ok = QInputDialog.getText(
+            self,  # 父窗口
+            "重命名",  # 标题
+            "请输入文件名:",  # 提示文本
+            text=file_name  # 默认文本
+        )
+        if ok and text:
+            new_path = os.path.join(self.fm.path, text)
+            if rename_with_pathlib(old_path=file_path, new_path= new_path):
+                self.get_current_tab().file_path = new_path
+                self.update_tab_title(self.get_current_tab())
+        pass
 
     def onexit(self,event):
         """关闭窗口时检查所有标签页的未保存更改"""
