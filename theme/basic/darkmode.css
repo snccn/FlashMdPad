@@ -1,0 +1,104 @@
+/* 预览区域整体样式 */
+.preview-container {
+    background-color: #1a202c;
+    color: #e2e8f0;
+    padding: 15px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+}
+
+/* 标题样式 */
+h1 { color: #81e6d9; border-bottom: 2px solid #2d3748; padding-bottom: 10px; }
+h2 { color: #4fd1c5; border-bottom: 1px solid #2d3748; padding-bottom: 8px; }
+h3 { color: #38b2ac; }
+h4 { color: #319795; }
+h5 { color: #2c7a7b; }
+h6 { color: #285e61; }
+
+/* 段落和文本 */
+p { margin-bottom: 15px; }
+strong { color: #faf089; }
+em { color: #fbd38d; }
+
+/* 代码块样式 */
+pre {
+    background-color: #2d3748;
+    border-left: 4px solid #63b3ed;
+    border-radius: 4px;
+    padding: 15px;
+    overflow: auto;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 0.95em;
+    line-height: 1.5;
+}
+
+code {
+    background-color: #2d3748;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 0.95em;
+    color: #fbd38d;
+}
+
+/* 引用样式 */
+blockquote {
+    border-left: 4px solid #4a5568;
+    background-color: #2d3748;
+    padding: 10px 15px;
+    margin: 0 0 15px;
+    color: #cbd5e0;
+}
+
+/* 列表样式 */
+ul, ol {
+    margin-bottom: 15px;
+    padding-left: 25px;
+}
+
+ul li, ol li {
+    margin-bottom: 5px;
+}
+
+/* 表格样式 */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+th, td {
+    border: 1px solid #4a5568;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+th {
+    background-color: #2d3748;
+    font-weight: bold;
+    color: #81e6d9;
+}
+
+tr:nth-child(even) {
+    background-color: #2d3748;
+}
+
+/* 链接样式 */
+a {
+    color: #63b3ed;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+a:hover {
+    color: #90cdf4;
+    text-decoration: underline;
+}
+
+/* 水平线 */
+hr {
+    border: 0;
+    height: 1px;
+    background: #4a5568;
+    margin: 20px 0;
+}
