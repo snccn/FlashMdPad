@@ -1,7 +1,7 @@
 # coding:utf-8
 
 import os
-from PySide6.QtGui import (Qt,QAction, QIcon, QKeySequence, QPalette,QColor,)
+from PySide6.QtGui import (Qt, QAction, QIcon, QKeySequence, QPalette,QColor,)
 from PySide6.QtWidgets import (QMainWindow, QTabWidget, QWidget,QInputDialog,
                               QVBoxLayout,QApplication,QPushButton,QToolBar,
                               QLabel, QFileDialog, QMessageBox, QStatusBar)
@@ -24,6 +24,9 @@ class MarkdownEditor(QMainWindow):
         self.setup_statusbar()
         self.dark_mode = False
         self.fm = FileManager()
+
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setAttribute(Qt.WA_NoSystemBackground, False)
         
         # 初始标签页
         if len(self.fm.FileList) == 0:
@@ -397,10 +400,10 @@ class MarkdownEditor(QMainWindow):
         # self.dark_mode_toggle.setText("☀️ 浅色模式" if checked else "🌙 深色模式")
     
     def add_split(self):
-        self.get_current_tab().add_str_to_editor("-------------------\n")
+        self.get_current_tab().add_str_to_editor("-------------------")
 
     def add_date(self):
-        self.get_current_tab().add_str_to_editor(f"{time.ctime()}\n")
+        self.get_current_tab().add_str_to_editor(f"{time.ctime()}")
 
     def closeEvent(self, event):
         event.ignore()

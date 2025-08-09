@@ -4,12 +4,15 @@ import platform
 import sys
 
 class FileManager(object):
-    """ 文件管理: 默认路径 win: 文件安装路径 macos: ~/.flashpad/"""
+    """ 文件管理: 默认路径 win: data 文件安装路径 macos: ~/.flashpad/"""
     FileList = []
     path = ""
     def __init__(self, basepath=""):
         if os.name == "nt":
-            self.path = os.path.realpath(__file__)
+            if getattr(sys, 'frozen', False):
+                self.path = os.path.join(os.path.dirname(sys.argv[-1]),"data")
+            else:
+                self.path = os.path.join(os.path.dirname(__file__),"data")
         else:
             self.path = os.path.expanduser("~/.flashpad/")
         if not os.path.exists(self.path):
