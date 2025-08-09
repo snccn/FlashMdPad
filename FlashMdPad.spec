@@ -52,6 +52,6 @@ app = BUNDLE(
     icon="resources/icons/icon.icns",
     bundle_identifier="top.yamisn.flashmdpad",
     info_plist={
-        'LSUIElement': '1',
+        # 'LSUIElement': '1',
     }
 )
