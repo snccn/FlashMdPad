@@ -25,6 +25,7 @@ exe = EXE(
     [],
     exclude_binaries=True,
     name='FlashMdPad',
+    icon='resources/icons/app.ico',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
