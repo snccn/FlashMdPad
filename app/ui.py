@@ -65,11 +65,11 @@ class MarkdownEditor(QMainWindow):
         new_action.triggered.connect(self.add_new_tab)
         file_menu.addAction(new_action)
         
-        # 打开
-        open_action = QAction(QIcon.fromTheme("document-open"), "打开", self)
-        open_action.setShortcut(QKeySequence.Open)
-        open_action.triggered.connect(self.open_file)
-        file_menu.addAction(open_action)
+        # # 打开
+        # open_action = QAction(QIcon.fromTheme("document-open"), "打开", self)
+        # open_action.setShortcut(QKeySequence.Open)
+        # open_action.triggered.connect(self.open_file)
+        # file_menu.addAction(open_action)
         
         file_menu.addSeparator()
         
@@ -142,7 +142,7 @@ class MarkdownEditor(QMainWindow):
         # 关闭标签页
         close_tab_action = QAction("关闭标签页", self)
         close_tab_action.setShortcut(QKeySequence("Ctrl+W"))
-        close_tab_action.triggered.connect(self.close_current_tab)
+        close_tab_action.triggered.connect(self.delete_current)
         tab_menu.addAction(close_tab_action)
 
         # 插入工具栏
@@ -167,20 +167,20 @@ class MarkdownEditor(QMainWindow):
         self.addToolBar(Qt.TopToolBarArea, toolbar)
         
         # 新建
-        new_action = QAction(QIcon.fromTheme("document-new"), "新建", self)
+        new_action = QAction("新建", self)
         new_action.triggered.connect(self.add_new_tab)
         toolbar.addAction(new_action)
         
-        # 打开
-        open_action = QAction(QIcon.fromTheme("document-open"), "打开", self)
-        open_action.triggered.connect(self.open_file)
-        toolbar.addAction(open_action)
-        
         # 保存
-        save_action = QAction(QIcon.fromTheme("document-save"), "保存", self)
+        save_action = QAction("保存", self)
         save_action.triggered.connect(self.save_current)
         toolbar.addAction(save_action)
         
+        # 删除
+        delete_action = QAction("删除", self)
+        delete_action.triggered.connect(self.delete_current)
+        toolbar.addAction(delete_action)
+
         toolbar.addSeparator()
         
         # 撤销
@@ -212,6 +212,7 @@ class MarkdownEditor(QMainWindow):
         """)
         self.dark_mode_toggle.toggled.connect(self.toggle_dark_mode)
         toolbar.addWidget(self.dark_mode_toggle)
+        toolbar.addSeparator()
 
     def setup_statusbar(self):
         self.status_bar = QStatusBar()
@@ -240,6 +241,9 @@ class MarkdownEditor(QMainWindow):
 
         # 连接修改状态变化信号
         tab.modificationChanged.connect(self.update_tab_title)
+
+        # 创建文件时默认保存当前文件
+        self.save_current()
         
         return tab
     
@@ -396,8 +400,7 @@ class MarkdownEditor(QMainWindow):
         
         # 更新菜单和工具栏状态
         self.dark_mode_action.setChecked(dark_mode)
-        # self.dark_mode_toggle.setChecked(checked)
-        # self.dark_mode_toggle.setText("☀️ 浅色模式" if checked else "🌙 深色模式")
+        self.dark_mode_toggle.setText("☀️ 浅色模式" if dark_mode else "🌙 深色模式")
     
     def add_split(self):
         self.get_current_tab().add_str_to_editor("-------------------")
@@ -408,6 +411,26 @@ class MarkdownEditor(QMainWindow):
     def closeEvent(self, event):
         event.ignore()
         self.hide()
+
+    def delete_current(self):
+        tab = self.get_current_tab()
+        msg_box = QMessageBox(
+            QMessageBox.Warning,
+            "确认删除",
+            f"你确定要删除当前标签页的文件\n\n{tab.file_path}" + "\n\n删除后将无法恢复！",
+            QMessageBox.Yes | QMessageBox.No,
+            self
+        )
+    
+        # 可以自定义按钮文本
+        msg_box.setButtonText(QMessageBox.Yes, "删除")
+        msg_box.setButtonText(QMessageBox.No, "取消")
+        result = msg_box.exec()
+        if result == QMessageBox.Yes:
+            # 移除列表中的项目（实际应用中可以在这里添加真实删除文件的代码）
+            self.fm.delete_file(tab.file_path)
+            self.close_current_tab()
+        pass
 
     def rename(self):
         file_path = self.get_current_tab().file_path

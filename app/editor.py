@@ -3,12 +3,13 @@
 from PySide6.QtWidgets import QWidget, QPlainTextEdit, QTextEdit
 from PySide6.QtGui import QFont, QColor,QPainter, QTextFormat
 from PySide6.QtCore import Qt, QSize,QRect
+from app.constants import FONT_FAMILY
 
 class LineNumberArea(QWidget):
     def __init__(self,editor):
         super().__init__(editor)
         self.editor = editor
-        self.setFont(QFont("Monospace",10))
+        self.setFont(QFont(FONT_FAMILY,10))
     def sizeHint(self):
         return QSize(self.editor.line_number_area_width(), 0)
     
@@ -21,7 +22,7 @@ class CodeEditor(QPlainTextEdit):
     def __init__(self, parent=None, dark_mode=False):
         super().__init__(parent)
         self.line_number_area = LineNumberArea(self)
-        self.setFont(QFont("Monospace", 12))
+        self.setFont(QFont(FONT_FAMILY, 12))
         self.setLineWrapMode(QPlainTextEdit.NoWrap)
 
         self.dark_mode = dark_mode

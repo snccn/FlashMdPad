@@ -20,7 +20,13 @@ if __name__ == "__main__":
     app.setQuitOnLastWindowClosed(False)
     
     # 设置应用样式
-    app.setStyle("Fusion")
+    if sys.platform == "darwin":
+        app.setStyle("Fusion")
+    elif sys.platform == "win32":
+        app.setStyle("WindowsVista")
+    else:
+        app.setStyle("Fusion")
+    
     app.setWindowIcon(QIcon(icon_resource_path))
 
     # 设置调色板

@@ -1,4 +1,15 @@
 # coding:utf-8
+import os
+import sys
+
+OS_TYPE = sys.platform
+
+if OS_TYPE == "darwin":
+    FONT_FAMILY = "PingFang SC"
+elif OS_TYPE == "Windows":
+    FONT_FAMILY = "Microsoft YaHei"
+else:
+    FONT_FAMILY = "Arial"
 
 LIGHT_THEME_CSS = """
 /* 预览区域整体样式 */

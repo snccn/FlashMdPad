@@ -9,9 +9,10 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QSplitter, QPlainTextEdit,
 
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
-from app.constants import LIGHT_THEME_CSS, DARK_THEME_CSS
+from app.constants import LIGHT_THEME_CSS, DARK_THEME_CSS, FONT_FAMILY
 from app.editor import CodeEditor
 from bleach.sanitizer import Cleaner
+
 
 class MarkdownHighlighter(QSyntaxHighlighter):
     """Markdown语法高亮器"""
@@ -41,7 +42,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         # 代码块
         code_format = QTextCharFormat()
         code_format.setBackground(QColor("#f5f5f5"))
-        code_format.setFontFamily("Monospace")
+        code_format.setFontFamily(FONT_FAMILY)
         self._rules.append((QRegularExpression(r'`[^`]+`'), code_format))
         
         # 链接
@@ -85,7 +86,7 @@ class MarkdownTab(QWidget):
         # Markdown编辑器
         self.editor = CodeEditor(parent=self,dark_mode=self.dark_mode)
         self.editor.setObjectName("markdownEditor")
-        # self.editor.setFont(QFont("Monospace", 12))
+        # self.editor.setFont(QFont(FONT_FAMILY, 12))
         self.editor.textChanged.connect(self.update_preview)
         self.editor.textChanged.connect(self.set_modified)
         

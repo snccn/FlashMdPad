@@ -30,8 +30,26 @@ class FileManager(object):
     def GetFileList(self):
         for file_path in self.list_files(self.path):
             self.FileList.append(file_path)
+    def delete_file(self, path):
+        return delete_file_by_name(path=path)
+
 
 from pathlib import Path
+
+def delete_file_by_name(path):
+    file_path = Path(path)
+
+    if file_path.exists() and file_path.is_file():
+        try:
+            file_path.unlink()  # 删除文件
+            print(f"文件 '{file_path}' 已成功删除")
+            return True
+        except OSError as e:
+            print(f"删除失败: {e.strerror}")
+            return False
+    else:
+        print(f"文件 '{file_path}' 不存在")
+        return False
 
 def rename_with_pathlib(old_path, new_path):
     """
