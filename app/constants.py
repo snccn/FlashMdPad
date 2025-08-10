@@ -2,6 +2,9 @@
 
 LIGHT_THEME_CSS = """
 /* 预览区域整体样式 */
+body {
+    background-color: #ffffff;
+}
 .preview-container {
     background-color: #f8f9fa;
     color: #212529;
@@ -108,6 +111,9 @@ hr {
 
 DARK_THEME_CSS = """
 /* 预览区域整体样式 */
+body {
+    background-color: #2d3748;
+}
 .preview-container {
     background-color: #1a202c;
     color: #e2e8f0;

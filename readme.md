@@ -18,15 +18,14 @@
 
 当前markdown支持情况
 
-1. 基础markdown语法（除图片渲染）
+1. 基础markdown语法
 2. markdown表格扩展语法
 
 
 待办事项
-1. 图片渲染
-2. 代码高亮
-3. 添加自定义插入
-4. 支持 ctrl+enter(command+enter) 计算表达式
+1. 代码高亮
+2. 添加自定义插入
+3. 支持 ctrl+enter(command+enter) 计算表达式
 
 可以在仓库release中下载打包好的版本， 采用Pyinstaller打包
 

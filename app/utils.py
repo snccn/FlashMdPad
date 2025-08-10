@@ -7,8 +7,11 @@ from PySide6.QtGui import (QFont, QTextCharFormat, QColor, QSyntaxHighlighter,QP
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QSplitter, QPlainTextEdit,
                               QTextBrowser, QFileDialog, QMessageBox)
 
+from PySide6.QtWebEngineWidgets import QWebEngineView
+
 from app.constants import LIGHT_THEME_CSS, DARK_THEME_CSS
 from app.editor import CodeEditor
+from bleach.sanitizer import Cleaner
 
 class MarkdownHighlighter(QSyntaxHighlighter):
     """Markdown语法高亮器"""
@@ -68,6 +71,7 @@ class MarkdownTab(QWidget):
         self.file_path = file_path
         self.is_modified = False
         self.dark_mode = dark_mode
+        self.XSSCleaner = XSSCleaner()
         self.setup_ui()
         
     def setup_ui(self):
@@ -89,14 +93,14 @@ class MarkdownTab(QWidget):
         self.highlighter = MarkdownHighlighter(self.editor.document())
         
         # HTML预览
-        self.preview = QTextBrowser()
-        self.preview.setOpenExternalLinks(True)
-        self.preview.setReadOnly(True)
-        self.preview.document().setDefaultStyleSheet(LIGHT_THEME_CSS)
+        self.preview = QWebEngineView()
+        # self.preview.setOpenExternalLinks(True)
+        # self.preview.setReadOnly(True)
+        # self.preview.document().setDefaultStyleSheet(LIGHT_THEME_CSS)
         
         # 设置预览区域滚动条策略
-        self.preview.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.preview.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        # self.preview.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        # self.preview.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         
         # 添加到分割器
         splitter.addWidget(self.editor)
@@ -118,14 +122,14 @@ class MarkdownTab(QWidget):
         self.editor.dark_mode = dark_mode
         self.editor.set_dark_mode(dark_mode)
         if self.dark_mode:
-            self.preview.document().setDefaultStyleSheet(DARK_THEME_CSS)
+            # self.preview.document().setDefaultStyleSheet(DARK_THEME_CSS)
             # 更新编辑器样式
             palette = self.editor.palette()
             palette.setColor(QPalette.Base, QColor("#2d3748"))
             palette.setColor(QPalette.Text, QColor("#e2e8f0"))
             self.editor.setPalette(palette)
         else:
-            self.preview.document().setDefaultStyleSheet(LIGHT_THEME_CSS)
+            # self.preview.document().setDefaultStyleSheet(LIGHT_THEME_CSS)
             # 恢复编辑器样式
             palette = self.editor.palette()
             palette.setColor(QPalette.Base, Qt.white)
@@ -180,13 +184,19 @@ class MarkdownTab(QWidget):
     def update_preview(self):
         """更新预览内容"""
         markdown_text = self.editor.toPlainText()
-        html = markdown.markdown(markdown_text, extensions=['fenced_code', 'tables', 'codehilite'])
+        html = markdown.markdown(markdown_text, extensions=['toc','fenced_code', 'tables', 'codehilite'])
+        if self.dark_mode:
+            css = DARK_THEME_CSS
+        else:
+            css = LIGHT_THEME_CSS
+        html = self.XSSCleaner.safe_markdown(html=html)
         styled_html = f"""
         <!DOCTYPE html>
         <html>
         <head>
         <meta charset="UTF-8">
-        <style>
+        <style type="text/css">
+        {css}
         </style>
         </head>
         <body>
@@ -203,3 +213,28 @@ class MarkdownTab(QWidget):
         if not self.is_modified:
             self.is_modified = True
             self.modificationChanged.emit(self)
+
+
+class XSSCleaner(object):
+    def __init__(self):
+        self.allowed_tags = [
+            'a', 'abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', 'ol',
+            'strong', 'ul', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'pre', 'br', 
+            'div', 'span', 'hr', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td'
+        ]
+        self.allowed_attributes = {
+            'a': ['href', 'title'],
+            'abbr': ['title'],
+            'acronym': ['title'],
+            'img': ['src', 'alt', 'title'],
+            'table': ['align', 'border'],
+            'td': ['align'],
+            'th': ['align'],
+        }
+        self.cleaner = Cleaner(tags=self.allowed_tags,
+                        attributes=self.allowed_attributes, 
+                        strip=True)
+    def safe_markdown(self,html):
+        # 清理HTML
+        cleaned_html = self.cleaner.clean(html)
+        return cleaned_html
