@@ -9,7 +9,7 @@ from PySide6.QtCore import QSize,Signal,QSettings
 
 from app.utils import MarkdownTab
 from app.filemanager import FileManager, rename_with_pathlib
-from app.dialogs import FindDialog
+from app.dialogs import FindDialog, HelpDialog,ShortcutDialog
 import time
 import datetime
 
@@ -137,7 +137,7 @@ class MarkdownEditor(QMainWindow):
         self.dark_mode_action = QAction("深色模式", self)
         self.dark_mode_action.setCheckable(True)
         self.dark_mode_action.triggered.connect(self.toggle_dark_mode)
-        # view_menu.addAction(self.dark_mode_action)
+        view_menu.addAction(self.dark_mode_action)
 
         # 字体设置
         self.set_font_action = QAction("字体设置", self)
@@ -186,6 +186,19 @@ class MarkdownEditor(QMainWindow):
         caculate_action.setShortcut(QKeySequence("Ctrl+E"))
         caculate_action.triggered.connect(self.caculate_current_row)
         tab_menu.addAction(caculate_action)
+
+        # 帮助菜单
+        help_menu = self.menuBar().addMenu("帮助")
+        help_action = QAction("Markdown 帮助", self)
+        help_action.setShortcut(QKeySequence("F1"))
+        help_action.triggered.connect(lambda: HelpDialog(self).exec())
+        help_menu.addAction(help_action)
+
+        # 快捷键一览
+        shortcut_action = QAction("快捷键一览", self)
+        shortcut_action.setShortcut(QKeySequence("F2"))
+        shortcut_action.triggered.connect(lambda: ShortcutDialog(self).exec())
+        help_menu.addAction(shortcut_action)
 
     def setup_toolbar(self):
         """设置工具栏"""

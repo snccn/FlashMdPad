@@ -26,44 +26,94 @@ class MarkdownHighlighter(QSyntaxHighlighter):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._rules = []
-        
-        # 标题规则
+
+        # 标题
         header_format = QTextCharFormat()
         header_format.setForeground(QColor("#2e7d32"))
         header_format.setFontWeight(QFont.Bold)
-        for pattern in [r'^#{1,6}\s+.+$']:
-            self._rules.append((QRegularExpression(pattern), header_format))
-        
+        for i in range(6, 0, -1):
+            pattern = QRegularExpression(rf"^{'#'*i} .+$")
+            self._rules.append((pattern, header_format))
+
         # 粗体
         bold_format = QTextCharFormat()
         bold_format.setFontWeight(QFont.Bold)
-        self._rules.append((QRegularExpression(r'\*\*[^\*]+\*\*'), bold_format))
-        self._rules.append((QRegularExpression(r'__[^_]+__'), bold_format))
-        
+        bold_format.setForeground(QColor("#d84315"))
+        self._rules.append((QRegularExpression(r"\*\*([^\*]+)\*\*"), bold_format))
+        self._rules.append((QRegularExpression(r"__([^_]+)__"), bold_format))
+
         # 斜体
         italic_format = QTextCharFormat()
         italic_format.setFontItalic(True)
-        self._rules.append((QRegularExpression(r'\*[^\*]+\*'), italic_format))
-        self._rules.append((QRegularExpression(r'_[^_]+_'), italic_format))
-        
-        # 代码块
-        code_format = QTextCharFormat()
-        code_format.setBackground(QColor("#f5f5f5"))
-        code_format.setFontFamily(FONT_FAMILY)
-        self._rules.append((QRegularExpression(r'`[^`]+`'), code_format))
-        
+        italic_format.setForeground(QColor("#6d4c41"))
+        self._rules.append((QRegularExpression(r"\*([^\*]+)\*"), italic_format))
+        self._rules.append((QRegularExpression(r"_([^_]+)_"), italic_format))
+
+        # 粗斜体
+        bolditalic_format = QTextCharFormat()
+        bolditalic_format.setFontWeight(QFont.Bold)
+        bolditalic_format.setFontItalic(True)
+        bolditalic_format.setForeground(QColor("#ad1457"))
+        self._rules.append((QRegularExpression(r"\*\*\*([^\*]+)\*\*\*"), bolditalic_format))
+        self._rules.append((QRegularExpression(r"___([^_]+)___"), bolditalic_format))
+
+        # 删除线
+        strike_format = QTextCharFormat()
+        strike_format.setFontStrikeOut(True)
+        strike_format.setForeground(QColor("#607d8b"))
+        self._rules.append((QRegularExpression(r"~~([^~]+)~~"), strike_format))
+
+        # 行内代码
+        inline_code_format = QTextCharFormat()
+        inline_code_format.setFontFamily("Consolas")
+        inline_code_format.setBackground(QColor("#f5f5f5"))
+        inline_code_format.setForeground(QColor("#795548"))
+        self._rules.append((QRegularExpression(r"`([^`]+)`"), inline_code_format))
+
+        # 代码块（以```开头和结尾的整行）
+        codeblock_format = QTextCharFormat()
+        codeblock_format.setFontFamily("Consolas")
+        codeblock_format.setBackground(QColor("#eceff1"))
+        codeblock_format.setForeground(QColor("#263238"))
+        self._rules.append((QRegularExpression(r"^```.*$"), codeblock_format))
+
+        # 引用
+        quote_format = QTextCharFormat()
+        quote_format.setForeground(QColor("#388e3c"))
+        self._rules.append((QRegularExpression(r"^> .+$"), quote_format))
+
         # 链接
         link_format = QTextCharFormat()
         link_format.setForeground(QColor("#1565c0"))
         link_format.setFontUnderline(True)
-        self._rules.append((QRegularExpression(r'\[[^\]]+\]\([^\)]+\)'), link_format))
-        
-        # 列表
+        self._rules.append((QRegularExpression(r"\[([^\]]+)\]\([^\)]+\)"), link_format))
+
+        # 图片
+        image_format = QTextCharFormat()
+        image_format.setForeground(QColor("#00897b"))
+        self._rules.append((QRegularExpression(r"!\[([^\]]*)\]\([^\)]+\)"), image_format))
+
+        # 列表（无序和有序）
         list_format = QTextCharFormat()
         list_format.setForeground(QColor("#7b1fa2"))
-        for pattern in [r'^[\*\-\+] .+$', r'^\d+\. .+$']:
-            self._rules.append((QRegularExpression(pattern), list_format))
-    
+        self._rules.append((QRegularExpression(r"^(\s*[\*\-\+]) .+$"), list_format))
+        self._rules.append((QRegularExpression(r"^(\s*\d+\.) .+$"), list_format))
+
+        # 任务列表
+        task_format = QTextCharFormat()
+        task_format.setForeground(QColor("#607d8b"))
+        self._rules.append((QRegularExpression(r"^\s*[-*] \[[ xX]\] .+$"), task_format))
+
+        # 脚注
+        footnote_format = QTextCharFormat()
+        footnote_format.setForeground(QColor("#c2185b"))
+        self._rules.append((QRegularExpression(r"\[\^.+?\]"), footnote_format))
+
+        # 分隔线
+        hr_format = QTextCharFormat()
+        hr_format.setForeground(QColor("#bdbdbd"))
+        self._rules.append((QRegularExpression(r"^([-*_]){3,}\s*$"), hr_format))
+
     def highlightBlock(self, text):
         for pattern, fmt in self._rules:
             match_iterator = pattern.globalMatch(text)
@@ -208,7 +258,18 @@ class MarkdownTab(QWidget):
         percent = min(percent, 1.0)
 
         markdown_text = self.editor.toPlainText()
-        html = markdown.markdown(markdown_text, extensions=['toc','fenced_code', 'tables', 'codehilite', "extra"])
+        html = markdown.markdown(
+            markdown_text,
+            extensions=[
+                'toc',
+                'fenced_code',
+                'tables',
+                'codehilite',
+                'extra',
+                'pymdownx.tasklist',
+                'pymdownx.superfences',     # 任务列表更好支持
+            ]
+        )
         css = DARK_THEME_CSS if self.dark_mode else LIGHT_THEME_CSS
         html = self.XSSCleaner.safe_markdown(html=html)
         styled_html = f"""
@@ -228,7 +289,6 @@ class MarkdownTab(QWidget):
         </html>
         """
 
-        # 只在内容变化时刷新
         if not hasattr(self, "_last_preview_html") or self._last_preview_html != styled_html:
             self._last_preview_html = styled_html
             self.preview.setHtml(styled_html)
@@ -269,7 +329,7 @@ class XSSCleaner(object):
         self.allowed_tags = [
             'a', 'abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', 'ol',
             'strong', 'ul', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'pre', 'br',
-            'div', 'span', 'hr', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'del','s'
+            'div', 'span', 'hr', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'del', 's', 'input'
         ]
         self.allowed_attributes = {
             'a': ['href', 'title'],
@@ -279,6 +339,7 @@ class XSSCleaner(object):
             'table': ['align', 'border'],
             'td': ['align'],
             'th': ['align'],
+            'input': ['type', 'checked']
         }
         self.cleaner = Cleaner(tags=self.allowed_tags,
                         attributes=self.allowed_attributes, 

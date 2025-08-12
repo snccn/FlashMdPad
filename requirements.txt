@@ -5,3 +5,4 @@ PySide6_Essentials==6.9.1
 shiboken6==6.9.1
 pyinstaller==6.15.0
 bleach==6.2.0
+pymdown-extensions==10.16.1
