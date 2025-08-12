@@ -178,8 +178,10 @@ class MarkdownTab(QWidget):
         
         if not file_path:
             return False
-            
-        self.file_path = file_path
+        ori_file_path = self.file_path
+        self.file_path = file_path #另存为其实为导出功能, 另存为后依旧以保存的文件为主
+        self.save_file()
+        self.file_path = ori_file_path  # 恢复原文件路径
         return self.save_file()
     
     def update_preview(self):

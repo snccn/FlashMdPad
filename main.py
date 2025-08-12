@@ -40,12 +40,19 @@ if __name__ == "__main__":
 
 
     tray = QSystemTrayIcon()
+    tray.setToolTip("FlashMdPad")
     tray.setIcon(QIcon(icon_resource_path))
     tray.setVisible(True)
 
     @Slot()
     def show_app():
         editor.show()
+
+    @Slot()
+    def hide_and_show_app(reason):
+        if reason == QSystemTrayIcon.Trigger:  # 左键单击
+            editor.hide_and_show()
+
 
     menu = QMenu()
     action = QAction('打开主窗口')
@@ -57,5 +64,6 @@ if __name__ == "__main__":
     menu.addAction(tray_quit)
 
     tray.setContextMenu(menu)
+    tray.activated.connect(hide_and_show_app)
 
     sys.exit(app.exec())

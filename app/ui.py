@@ -92,6 +92,11 @@ class MarkdownEditor(QMainWindow):
         file_menu.addAction(rename_action)
 
         file_menu.addSeparator()
+
+        hide_action = QAction("隐藏窗口",self)
+        hide_action.setShortcut(QKeySequence("ESC"))
+        hide_action.triggered.connect(self.hide)
+        file_menu.addAction(hide_action)
         
         # 退出
         exit_action = QAction("退出", self)
@@ -399,8 +404,8 @@ class MarkdownEditor(QMainWindow):
             QApplication.setPalette(palette)
         
         # 更新菜单和工具栏状态
-        self.dark_mode_action.setChecked(dark_mode)
-        self.dark_mode_toggle.setText("☀️ 浅色模式" if dark_mode else "🌙 深色模式")
+        # self.dark_mode_action.setChecked(dark_mode)
+        # self.dark_mode_toggle.setText("☀️ 浅色模式" if dark_mode else "🌙 深色模式")
     
     def add_split(self):
         self.get_current_tab().add_str_to_editor("-------------------")
@@ -430,6 +435,14 @@ class MarkdownEditor(QMainWindow):
             # 移除列表中的项目（实际应用中可以在这里添加真实删除文件的代码）
             self.fm.delete_file(tab.file_path)
             self.close_current_tab()
+        pass
+
+    # 判断当前窗口是隐藏的话就显示，显示的话就隐藏
+    def hide_and_show(self):
+        if self.isHidden():
+            self.show()
+        else:
+            self.hide()
         pass
 
     def rename(self):
