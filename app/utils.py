@@ -200,7 +200,7 @@ class MarkdownTab(QWidget):
         percent = min(percent, 1.0)
 
         markdown_text = self.editor.toPlainText()
-        html = markdown.markdown(markdown_text, extensions=['toc','fenced_code', 'tables', 'codehilite'])
+        html = markdown.markdown(markdown_text, extensions=['toc','fenced_code', 'tables', 'codehilite', "extra"])
         css = DARK_THEME_CSS if self.dark_mode else LIGHT_THEME_CSS
         html = self.XSSCleaner.safe_markdown(html=html)
         styled_html = f"""
@@ -260,8 +260,8 @@ class XSSCleaner(object):
     def __init__(self):
         self.allowed_tags = [
             'a', 'abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', 'ol',
-            'strong', 'ul', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'pre', 'br', 'delete'
-            'div', 'span', 'hr', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td'
+            'strong', 'ul', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'pre', 'br',
+            'div', 'span', 'hr', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'del','s'
         ]
         self.allowed_attributes = {
             'a': ['href', 'title'],
