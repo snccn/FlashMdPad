@@ -68,9 +68,9 @@ class MarkdownEditor(QMainWindow):
         new_action.triggered.connect(self.add_new_tab)
         file_menu.addAction(new_action)
         
-        # # 打开
-        # open_action = QAction(QIcon.fromTheme("document-open"), "打开", self)
-        # open_action.setShortcut(QKeySequence.Open)
+        # # 从文件中导入
+        # open_action = QAction(QIcon.fromTheme("document-open"), "从文件中导入", self)
+        # open_action.setShortcut(QKeySequence("Ctrl+I"))
         # open_action.triggered.connect(self.open_file)
         # file_menu.addAction(open_action)
         
@@ -291,16 +291,22 @@ class MarkdownEditor(QMainWindow):
         """获取当前标签页"""
         return self.tab_widget.currentWidget()
     
-    def open_file(self):
-        """打开文件"""
-        file_path, _ = QFileDialog.getOpenFileName(
-            self, "打开Markdown文件", 
-            os.path.expanduser("~"), 
-            "Markdown Files (*.md *.markdown);;All Files (*)"
-        )
+    # def open_file(self):
+    #     """打开文件"""
+    #     file_path, _ = QFileDialog.getOpenFileName(
+    #         self, "打开Markdown文件", 
+    #         os.path.expanduser("~"), 
+    #         "Markdown Files (*.md *.markdown);;All Files (*)"
+    #     )
         
-        if file_path:
-            self.add_new_tab(file_path)
+    #     if file_path:
+    #         with open(file_path, "r", encoding="utf-8") as f:
+    #             content = f.read()
+    #         tab = self.get_current_tab()
+    #         if tab:
+    #             # 插入到当前光标处
+    #             cursor = tab.editor.textCursor()
+    #             cursor.insertText(content)
     
     def save_current(self):
         """保存当前文档"""

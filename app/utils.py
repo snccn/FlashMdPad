@@ -2,18 +2,25 @@
 
 import os
 import markdown
-from PySide6.QtCore import Qt, QRegularExpression, Signal, QTimer
-from PySide6.QtGui import (QFont, QTextCharFormat, QColor, QSyntaxHighlighter,QPalette,QKeySequence, QShortcut, )
+from PySide6.QtCore import Qt, QRegularExpression, Signal, QTimer, QUrl
+from PySide6.QtGui import (QFont, QTextCharFormat, QColor, QSyntaxHighlighter,QPalette,QKeySequence, QDesktopServices, )
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QSplitter, QPlainTextEdit,
                               QTextBrowser, QFileDialog, QMessageBox)
 
+from PySide6.QtWebEngineCore import QWebEnginePage
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 from app.constants import LIGHT_THEME_CSS, DARK_THEME_CSS, FONT_FAMILY
 from app.editor import CodeEditor
 from bleach.sanitizer import Cleaner
 
-
+class ExternalLinkPage(QWebEnginePage):
+    def acceptNavigationRequest(self, url, nav_type, is_main_frame):
+        if nav_type == QWebEnginePage.NavigationTypeLinkClicked:
+            QDesktopServices.openUrl(url)
+            return False  # 阻止 QWebEngineView 自己跳转
+        return super().acceptNavigationRequest(url, nav_type, is_main_frame)
+    
 class MarkdownHighlighter(QSyntaxHighlighter):
     """Markdown语法高亮器"""
     def __init__(self, parent=None):
@@ -95,6 +102,7 @@ class MarkdownTab(QWidget):
         
         # HTML预览
         self.preview = QWebEngineView()
+        self.preview.setPage(ExternalLinkPage(self.preview))
         # self.preview.setOpenExternalLinks(True)
         # self.preview.setReadOnly(True)
         # self.preview.document().setDefaultStyleSheet(LIGHT_THEME_CSS)
