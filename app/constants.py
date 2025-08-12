@@ -22,6 +22,7 @@ body {
 }
 .markdown-body {
     padding: 24px 16px;
+    min-height: 100vh;
     max-width: 900px;
     margin: auto;
     background: #fff;
