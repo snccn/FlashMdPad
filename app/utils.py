@@ -2,8 +2,8 @@
 
 import os
 import markdown
-from PySide6.QtCore import Qt, QRegularExpression, Signal
-from PySide6.QtGui import (QFont, QTextCharFormat, QColor, QSyntaxHighlighter,QPalette )
+from PySide6.QtCore import Qt, QRegularExpression, Signal, QTimer
+from PySide6.QtGui import (QFont, QTextCharFormat, QColor, QSyntaxHighlighter,QPalette,QKeySequence, QShortcut, )
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QSplitter, QPlainTextEdit,
                               QTextBrowser, QFileDialog, QMessageBox)
 
@@ -115,7 +115,9 @@ class MarkdownTab(QWidget):
             self.load_file()
     
     def add_str_to_editor(self, targetstr):
-        self.editor.appendPlainText(targetstr)
+        cursor = self.editor.textCursor()
+        cursor.insertText(targetstr)
+        self.editor.setTextCursor(cursor)
 
     def toggle_dark_mode(self, dark_mode):
         """切换深色/浅色模式"""
@@ -184,14 +186,22 @@ class MarkdownTab(QWidget):
         self.file_path = ori_file_path  # 恢复原文件路径
         return self.save_file()
     
+    def evaluate_current_row_expression(self):
+        """计算当前行的表达式"""
+        self.editor.eval_current_line_and_replace()
+        # self.update_preview()
+    
     def update_preview(self):
-        """更新预览内容"""
+        editor_scrollbar = self.editor.verticalScrollBar()
+        if editor_scrollbar.maximum() > 0:
+            percent = editor_scrollbar.value() / editor_scrollbar.maximum()
+        else:
+            percent = 0.0
+        percent = min(percent, 1.0)
+
         markdown_text = self.editor.toPlainText()
         html = markdown.markdown(markdown_text, extensions=['toc','fenced_code', 'tables', 'codehilite'])
-        if self.dark_mode:
-            css = DARK_THEME_CSS
-        else:
-            css = LIGHT_THEME_CSS
+        css = DARK_THEME_CSS if self.dark_mode else LIGHT_THEME_CSS
         html = self.XSSCleaner.safe_markdown(html=html)
         styled_html = f"""
         <!DOCTYPE html>
@@ -209,7 +219,35 @@ class MarkdownTab(QWidget):
         </body>
         </html>
         """
-        self.preview.setHtml(styled_html)
+
+        # 只在内容变化时刷新
+        if not hasattr(self, "_last_preview_html") or self._last_preview_html != styled_html:
+            self._last_preview_html = styled_html
+            self.preview.setHtml(styled_html)
+
+            def scroll_preview():
+                if percent >= 0.99:
+                    js = """
+                    (function() {
+                        var h = (document.body ? document.body.scrollHeight : document.documentElement.scrollHeight);
+                        window.scrollTo(0, h);
+                    })();
+                    """
+                else:
+                    js = f"""
+                    (function() {{
+                        var body = document.body || document.documentElement;
+                        var h = (body ? body.scrollHeight : document.documentElement.scrollHeight) - window.innerHeight;
+                        if(h > 0){{
+                            window.scrollTo(0, h * {percent});
+                        }}
+                    }})();
+                    """
+                self.preview.page().runJavaScript(js)
+        try:
+            QTimer.singleShot(100, scroll_preview)
+        except Exception as e:
+            pass  # 可能在某些环境下无法执行JavaScript，忽略错误
     
     def set_modified(self):
         """标记文档已修改"""
@@ -222,7 +260,7 @@ class XSSCleaner(object):
     def __init__(self):
         self.allowed_tags = [
             'a', 'abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', 'ol',
-            'strong', 'ul', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'pre', 'br', 
+            'strong', 'ul', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'pre', 'br', 'delete'
             'div', 'span', 'hr', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td'
         ]
         self.allowed_attributes = {

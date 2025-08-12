@@ -5,7 +5,6 @@ from PySide6.QtGui import ( QColor, QPalette, QIcon, QAction)
 from PySide6.QtWidgets import (QApplication,QMenu, QSystemTrayIcon)
 
 from app.ui import MarkdownEditor
-from app.style import apply_global_style
 
 
 if getattr(sys, 'frozen', False):

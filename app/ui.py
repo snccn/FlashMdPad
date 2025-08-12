@@ -1,15 +1,17 @@
 # coding:utf-8
 
 import os
-from PySide6.QtGui import (Qt, QAction, QIcon, QKeySequence, QPalette,QColor,)
+from PySide6.QtGui import (Qt, QAction, QIcon, QKeySequence, QPalette,QColor,QTextCursor)
 from PySide6.QtWidgets import (QMainWindow, QTabWidget, QWidget,QInputDialog,
-                              QVBoxLayout,QApplication,QPushButton,QToolBar,
+                              QVBoxLayout,QApplication,QPushButton,QToolBar,QFontDialog,
                               QLabel, QFileDialog, QMessageBox, QStatusBar)
-from PySide6.QtCore import QSize,Signal
+from PySide6.QtCore import QSize,Signal,QSettings
 
 from app.utils import MarkdownTab
 from app.filemanager import FileManager, rename_with_pathlib
+from app.dialogs import FindDialog
 import time
+import datetime
 
 class MarkdownEditor(QMainWindow):
     """主窗口：多标签Markdown编辑器"""
@@ -24,6 +26,7 @@ class MarkdownEditor(QMainWindow):
         self.setup_statusbar()
         self.dark_mode = False
         self.fm = FileManager()
+        self.font = ""
 
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setAttribute(Qt.WA_NoSystemBackground, False)
@@ -124,6 +127,7 @@ class MarkdownEditor(QMainWindow):
         # 查找
         find_action = QAction("查找", self)
         find_action.setShortcut(QKeySequence.Find)
+        find_action.triggered.connect(self.show_find_dialog)
         edit_menu.addAction(find_action)
         
         # 视图菜单
@@ -133,8 +137,20 @@ class MarkdownEditor(QMainWindow):
         self.dark_mode_action = QAction("深色模式", self)
         self.dark_mode_action.setCheckable(True)
         self.dark_mode_action.triggered.connect(self.toggle_dark_mode)
-        view_menu.addAction(self.dark_mode_action)
+        # view_menu.addAction(self.dark_mode_action)
+
+        # 字体设置
+        self.set_font_action = QAction("字体设置", self)
+        self.set_font_action.triggered.connect(self.SetFontFamily)
+        view_menu.addAction(self.set_font_action)
         
+        # 窗口保持在顶层
+        self.set_ontop_action = QAction("窗口保持在顶层", self)
+        self.set_ontop_action.setCheckable(True)
+        self.set_ontop_action.setShortcut(QKeySequence("F6"))
+        self.set_ontop_action.triggered.connect(lambda checked: self.set_window_on_top(checked))
+        view_menu.addAction(self.set_ontop_action)
+
         # 标签页菜单
         tab_menu = self.menuBar().addMenu("标签页")
         
@@ -164,6 +180,12 @@ class MarkdownEditor(QMainWindow):
         add_date_action.setShortcut(QKeySequence("Ctrl+D"))
         add_date_action.triggered.connect(self.add_date)
         tab_menu.addAction(add_date_action)
+
+        # 运算
+        caculate_action = QAction("运算表达式", self)
+        caculate_action.setShortcut(QKeySequence("Ctrl+E"))
+        caculate_action.triggered.connect(self.caculate_current_row)
+        tab_menu.addAction(caculate_action)
 
     def setup_toolbar(self):
         """设置工具栏"""
@@ -411,7 +433,9 @@ class MarkdownEditor(QMainWindow):
         self.get_current_tab().add_str_to_editor("-------------------")
 
     def add_date(self):
-        self.get_current_tab().add_str_to_editor(f"{time.ctime()}")
+        now = datetime.datetime.now()
+        date_str = now.strftime(f"%Y-%m-%d %H:%M")
+        self.get_current_tab().add_str_to_editor(f"{date_str}")
 
     def closeEvent(self, event):
         event.ignore()
@@ -490,3 +514,44 @@ class MarkdownEditor(QMainWindow):
                 return
         
         event.accept()
+
+    def set_window_on_top(self,on_top: bool):
+        """设置窗口是否保持在顶层"""
+        self.setWindowFlag(Qt.WindowStaysOnTopHint, on_top)
+        self.hide()
+        # time.sleep(1)
+        self.show()  # 需要重新 show 才会生效
+
+    def SetFontFamily(self):
+        current_font = self.get_current_tab().font()
+        ok, font = QFontDialog.getFont(current_font, self, "选择字体")
+
+        if ok:
+            self.get_current_tab().setFont(font)
+            settings = QSettings("FlashMdPad", "UserSettings")
+            settings.setValue("editorFont", font.toString())
+    def show_find_dialog(self):
+        dialog = FindDialog(self)
+        if dialog.exec():
+            text = dialog.get_text()
+            self.find_in_editor(text)
+
+    def find_in_editor(self, text):
+        tab = self.get_current_tab()
+        if not tab or not text:
+            return
+        editor = tab.editor
+        # 查找下一个
+        found = editor.find(text)
+        if not found:
+            # 没找到，从头再查找一次
+            cursor = editor.textCursor()
+            cursor.movePosition(QTextCursor.Start)
+            editor.setTextCursor(cursor)
+            if not editor.find(text):
+                QMessageBox.information(self, "查找", f"未找到：{text}")
+
+    def caculate_current_row(self):
+        """计算当前行的表达式"""
+        tab = self.get_current_tab()
+        res = tab.evaluate_current_row_expression()
