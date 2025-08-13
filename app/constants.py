@@ -5,7 +5,7 @@ import sys
 OS_TYPE = sys.platform
 
 if OS_TYPE == "darwin":
-    FONT_FAMILY = "PingFang SC"
+    FONT_FAMILY = "Consolas"
 elif OS_TYPE == "win32":
     FONT_FAMILY = "Microsoft YaHei"
 else:

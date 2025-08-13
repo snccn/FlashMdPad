@@ -1,6 +1,6 @@
 # coding:utf-8
 
-import os
+import os, sys
 from PySide6.QtGui import (Qt, QAction, QIcon, QKeySequence, QPalette,QColor,QTextCursor)
 from PySide6.QtWidgets import (QMainWindow, QTabWidget, QWidget,QInputDialog,
                               QVBoxLayout,QApplication,QPushButton,QToolBar,QFontDialog,
@@ -100,10 +100,13 @@ class MarkdownEditor(QMainWindow):
 
         file_menu.addSeparator()
 
-        hide_action = QAction("隐藏窗口",self)
-        hide_action.setShortcut(QKeySequence("ESC"))
-        hide_action.triggered.connect(self.hide)
-        file_menu.addAction(hide_action)
+        if sys.platform == "darwin":
+            pass
+        else:
+            hide_action = QAction("隐藏窗口",self)
+            hide_action.setShortcut(QKeySequence("ESC"))
+            hide_action.triggered.connect(self.hide)
+            file_menu.addAction(hide_action)
         
         # 退出
         exit_action = QAction("退出", self)
@@ -462,8 +465,11 @@ class MarkdownEditor(QMainWindow):
         self.get_current_tab().add_str_to_editor(f"{date_str}")
 
     def closeEvent(self, event):
-        event.ignore()
-        self.hide()
+        if sys.platform == "darwin":
+            pass
+        else:
+            event.ignore()
+            self.hide()
 
     def delete_current(self):
         tab = self.get_current_tab()

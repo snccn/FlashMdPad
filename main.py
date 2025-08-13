@@ -16,14 +16,15 @@ icon_resource_path = os.path.join(base_path, 'resources/icons/icon.png')
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    app.setQuitOnLastWindowClosed(False)
     
     # 设置应用样式
     if sys.platform == "darwin":
-        app.setStyle("Fusion")
+        app.setStyle("macos")
     elif sys.platform == "win32":
+        app.setQuitOnLastWindowClosed(False)
         app.setStyle("WindowsVista")
     else:
+        app.setQuitOnLastWindowClosed(False)
         app.setStyle("Fusion")
     
     app.setWindowIcon(QIcon(icon_resource_path))
@@ -37,32 +38,32 @@ if __name__ == "__main__":
     editor = MarkdownEditor()
     editor.show()
 
+    if not sys.platform == "darwin":
+        tray = QSystemTrayIcon()
+        tray.setToolTip("FlashMdPad")
+        tray.setIcon(QIcon(icon_resource_path))
+        tray.setVisible(True)
 
-    tray = QSystemTrayIcon()
-    tray.setToolTip("FlashMdPad")
-    tray.setIcon(QIcon(icon_resource_path))
-    tray.setVisible(True)
+        @Slot()
+        def show_app():
+            editor.show()
 
-    @Slot()
-    def show_app():
-        editor.show()
-
-    @Slot()
-    def hide_and_show_app(reason):
-        if reason == QSystemTrayIcon.Trigger:  # 左键单击
-            editor.hide_and_show()
+        @Slot()
+        def hide_and_show_app(reason):
+            if reason == QSystemTrayIcon.Trigger:  # 左键单击
+                editor.hide_and_show()
 
 
-    menu = QMenu()
-    action = QAction('打开主窗口')
-    action.triggered.connect(show_app)
-    menu.addAction(action)
+        menu = QMenu()
+        action = QAction('打开主窗口')
+        action.triggered.connect(show_app)
+        menu.addAction(action)
 
-    tray_quit = QAction('退出')
-    tray_quit.triggered.connect(app.quit)
-    menu.addAction(tray_quit)
+        tray_quit = QAction('退出')
+        tray_quit.triggered.connect(app.quit)
+        menu.addAction(tray_quit)
 
-    tray.setContextMenu(menu)
-    tray.activated.connect(hide_and_show_app)
+        tray.setContextMenu(menu)
+        tray.activated.connect(hide_and_show_app)
 
     sys.exit(app.exec())
