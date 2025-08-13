@@ -322,6 +322,8 @@ class MarkdownTab(QWidget):
         if not self.is_modified:
             self.is_modified = True
             self.modificationChanged.emit(self)
+    def set_editor_font(self, font):
+        self.editor.setFont(font)
 
 
 class XSSCleaner(object):

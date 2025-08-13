@@ -5,17 +5,19 @@ from PySide6.QtGui import (Qt, QAction, QIcon, QKeySequence, QPalette,QColor,QTe
 from PySide6.QtWidgets import (QMainWindow, QTabWidget, QWidget,QInputDialog,
                               QVBoxLayout,QApplication,QPushButton,QToolBar,QFontDialog,
                               QLabel, QFileDialog, QMessageBox, QStatusBar)
-from PySide6.QtCore import QSize,Signal,QSettings
+from PySide6.QtCore import QSize,Signal,QSettings,QEvent
 
 from app.utils import MarkdownTab
 from app.filemanager import FileManager, rename_with_pathlib
 from app.dialogs import FindDialog, HelpDialog,ShortcutDialog
+from app.constants import FONT_FAMILY
 import time
 import datetime
 
 class MarkdownEditor(QMainWindow):
     """主窗口：多标签Markdown编辑器"""
     themeChanged = Signal(bool)
+    settings = QSettings("FlashMdPad", "UserSettings")
     def __init__(self):
         super().__init__()
         self.setWindowTitle("FlashMdPad")
@@ -27,6 +29,7 @@ class MarkdownEditor(QMainWindow):
         self.dark_mode = False
         self.fm = FileManager()
         self.font = ""
+        # self.settings.value("editorFont",FONT_FAMILY, self.font)
 
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setAttribute(Qt.WA_NoSystemBackground, False)
@@ -52,7 +55,8 @@ class MarkdownEditor(QMainWindow):
         
         # 标签页控件
         self.tab_widget = QTabWidget()
-        self.tab_widget.setTabsClosable(True)
+        self.tab_widget.setTabsClosable(False)
+        self.tab_widget.setMovable(True)
         self.tab_widget.tabCloseRequested.connect(self.close_tab)
         self.tab_widget.currentChanged.connect(self.update_status)
         
@@ -137,7 +141,7 @@ class MarkdownEditor(QMainWindow):
         self.dark_mode_action = QAction("深色模式", self)
         self.dark_mode_action.setCheckable(True)
         self.dark_mode_action.triggered.connect(self.toggle_dark_mode)
-        view_menu.addAction(self.dark_mode_action)
+        # view_menu.addAction(self.dark_mode_action)
 
         # 字体设置
         self.set_font_action = QAction("字体设置", self)
@@ -389,8 +393,9 @@ class MarkdownEditor(QMainWindow):
         """更新状态栏信息"""
         if index >= 0:
             tab = self.tab_widget.widget(index)
+            count = len(tab.editor.toPlainText())
             if tab.file_path:
-                self.status_label.setText(f"已打开: {tab.file_path}")
+                self.status_label.setText(f"就绪: {tab.file_path}\t总字数: {count}字\t")
             else:
                 self.status_label.setText("新文档")
             self.update_cursor_position()
@@ -546,9 +551,11 @@ class MarkdownEditor(QMainWindow):
         ok, font = QFontDialog.getFont(current_font, self, "选择字体")
 
         if ok:
-            self.get_current_tab().setFont(font)
-            settings = QSettings("FlashMdPad", "UserSettings")
-            settings.setValue("editorFont", font.toString())
+            self.font = font.toString()
+            for i in range(self.tab_widget.count()):
+                tab = self.tab_widget.widget(i)
+                tab.set_editor_font(font)
+
     def show_find_dialog(self):
         dialog = FindDialog(self)
         if dialog.exec():
