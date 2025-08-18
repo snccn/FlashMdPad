@@ -19,10 +19,10 @@ if __name__ == "__main__":
     
     # 设置应用样式
     if sys.platform == "darwin":
-        app.setStyle("macos")
+        app.setStyle("Fusion")
     elif sys.platform == "win32":
         app.setQuitOnLastWindowClosed(False)
-        app.setStyle("WindowsVista")
+        app.setStyle("Fusion")
     else:
         app.setQuitOnLastWindowClosed(False)
         app.setStyle("Fusion")

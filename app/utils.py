@@ -4,7 +4,7 @@ import os
 import markdown
 from PySide6.QtCore import Qt, QRegularExpression, Signal, QTimer, QUrl
 from PySide6.QtGui import (QFont, QTextCharFormat, QColor, QSyntaxHighlighter,QPalette,QKeySequence, QDesktopServices, )
-from PySide6.QtWidgets import (QWidget, QVBoxLayout, QSplitter, QPlainTextEdit,
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QSplitter, QPlainTextEdit,QTabWidget,
                               QTextBrowser, QFileDialog, QMessageBox)
 
 from PySide6.QtWebEngineCore import QWebEnginePage
@@ -350,3 +350,79 @@ class XSSCleaner(object):
         # 清理HTML
         cleaned_html = self.cleaner.clean(html)
         return cleaned_html
+    
+# TODO: 实现标签页染色中
+class ColorTabBar(QWidget):
+    """自定义彩色标签栏"""
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.tab_widget = parent
+        self.setMinimumHeight(40)
+        
+        # 默认颜色
+        self.tab_colors = {}
+        self.tab_text_colors = {}
+        
+    def set_tab_color(self, index, color):
+        """设置标签页背景色"""
+        self.tab_colors[index] = color
+        self.update()
+        
+    def set_tab_text_color(self, index, color):
+        """设置标签页文字颜色"""
+        self.tab_text_colors[index] = color
+        self.update()
+        
+    def paintEvent(self, event):
+        """绘制自定义标签栏"""
+        painter = self.tab_widget.tabBar().paintEngine().painter()
+        if painter is None:
+            return
+            
+        # 获取标签栏几何信息
+        tab_rect = self.tab_widget.tabBar().geometry()
+        self.setGeometry(tab_rect)
+        
+        # 绘制每个标签页
+        for index in range(self.tab_widget.count()):
+            tab_rect = self.tab_widget.tabBar().tabRect(index)
+            
+            # 获取标签页颜色
+            bg_color = self.tab_colors.get(index, QColor("#3498db"))
+            text_color = self.tab_text_colors.get(index, QColor("#ffffff"))
+            
+            # 绘制标签页背景
+            painter.fillRect(tab_rect, bg_color)
+            
+            # 绘制标签页文字
+            painter.setPen(text_color)
+            text = self.tab_widget.tabText(index)
+            painter.drawText(tab_rect, Qt.AlignCenter, text)
+            
+            # 绘制选中状态边框
+            if index == self.tab_widget.currentIndex():
+                border_color = QColor("#e74c3c")
+                painter.setPen(border_color)
+                painter.drawRect(tab_rect.adjusted(0, 0, -1, -1))
+
+
+class ColorTabWidget(QTabWidget):
+    """支持染色的TabWidget"""
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setTabPosition(QTabWidget.North)
+        self.setMovable(True)
+        self.setDocumentMode(False)
+        self.setUsesScrollButtons(True)
+        
+        # 创建自定义标签栏
+        self.color_tab_bar = ColorTabBar(self)
+        self.setTabBar(self.color_tab_bar)
+        
+    def set_tab_color(self, index, color):
+        """设置标签页背景色"""
+        self.color_tab_bar.set_tab_color(index, color)
+        
+    def set_tab_text_color(self, index, color):
+        """设置标签页文字颜色"""
+        self.color_tab_bar.set_tab_text_color(index, color)

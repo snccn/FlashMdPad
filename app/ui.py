@@ -9,7 +9,7 @@ from PySide6.QtCore import QSize,Signal,QSettings,QEvent
 
 from app.utils import MarkdownTab
 from app.filemanager import FileManager, rename_with_pathlib
-from app.dialogs import FindDialog, HelpDialog,ShortcutDialog
+from app.dialogs import FindDialog, HelpDialog,ShortcutDialog, FindTabDialog
 from app.constants import FONT_FAMILY
 import time
 import datetime
@@ -24,7 +24,7 @@ class MarkdownEditor(QMainWindow):
         self.resize(1200, 800)
         self.setup_ui()
         self.setup_menu()
-        # self.setup_toolbar()
+        self.setup_toolbar()
         self.setup_statusbar()
         self.dark_mode = False
         self.fm = FileManager()
@@ -136,6 +136,13 @@ class MarkdownEditor(QMainWindow):
         find_action.setShortcut(QKeySequence.Find)
         find_action.triggered.connect(self.show_find_dialog)
         edit_menu.addAction(find_action)
+
+        # 查找标签页
+        find_tab_action = QAction("查找标签页", self)
+        find_tab_action.setShortcut("Ctrl+Alt+F")
+        find_tab_action.triggered.connect(self.show_find_tab_dialog)
+        edit_menu.addAction(find_tab_action)
+        
         
         # 视图菜单
         view_menu = self.menuBar().addMenu("视图")
@@ -209,57 +216,75 @@ class MarkdownEditor(QMainWindow):
 
     def setup_toolbar(self):
         """设置工具栏"""
-        toolbar = QToolBar("主工具栏")
-        toolbar.setIconSize(QSize(24, 24))
-        self.addToolBar(Qt.TopToolBarArea, toolbar)
+        self.toolbar = QToolBar("主工具栏")
+        self.toolbar.setMovable(False)
+        self.toolbar.setIconSize(QSize(20, 20))
+        self.addToolBar(Qt.TopToolBarArea, self.toolbar)
+        # self.toolbar.setLayout()
         
         # 新建
-        new_action = QAction("新建", self)
+        new_action = QAction(QIcon.fromTheme("document-open"),"新建", self)
         new_action.triggered.connect(self.add_new_tab)
-        toolbar.addAction(new_action)
+        self.toolbar.addAction(new_action)
         
         # 保存
-        save_action = QAction("保存", self)
+        save_action = QAction(QIcon.fromTheme("document-save"),"保存", self)
         save_action.triggered.connect(self.save_current)
-        toolbar.addAction(save_action)
+        self.toolbar.addAction(save_action)
+
+        # 另存为
+        save_as_action = QAction(QIcon.fromTheme("go-jump"),"另存为", self)
+        save_as_action.triggered.connect(self.save_as_current)
+        self.toolbar.addAction(save_as_action)
         
         # 删除
-        delete_action = QAction("删除", self)
+        delete_action = QAction(QIcon.fromTheme("edit-delete"),"删除", self)
         delete_action.triggered.connect(self.delete_current)
-        toolbar.addAction(delete_action)
+        self.toolbar.addAction(delete_action)
 
-        toolbar.addSeparator()
+        self.toolbar.addSeparator()
         
         # 撤销
         undo_action = QAction(QIcon.fromTheme("edit-undo"), "撤销", self)
         undo_action.triggered.connect(self.undo)
-        toolbar.addAction(undo_action)
+        self.toolbar.addAction(undo_action)
         
         # 重做
         redo_action = QAction(QIcon.fromTheme("edit-redo"), "重做", self)
         redo_action.triggered.connect(self.redo)
-        toolbar.addAction(redo_action)
+        self.toolbar.addAction(redo_action)
         
-        toolbar.addSeparator()
+        self.toolbar.addSeparator()
         
-        # 深色模式切换按钮
-        self.dark_mode_toggle = QPushButton("🌙 深色模式")
-        self.dark_mode_toggle.setCheckable(True)
-        self.dark_mode_toggle.setStyleSheet("""
-            QPushButton {
-                padding: 5px 10px;
-                border: 1px solid #cbd5e0;
-                border-radius: 4px;
-                background-color: #f7fafc;
-            }
-            QPushButton:checked {
-                background-color: #2d3748;
-                color: #e2e8f0;
-            }
-        """)
-        self.dark_mode_toggle.toggled.connect(self.toggle_dark_mode)
-        toolbar.addWidget(self.dark_mode_toggle)
-        toolbar.addSeparator()
+        # 字体设置
+        setfont_action = QAction(QIcon.fromTheme("font-x-generic"), "字体设置", self)
+        setfont_action.triggered.connect(self.SetFontFamily)
+        self.toolbar.addAction(setfont_action)
+
+        self.toolbar.addSeparator()
+
+        # 标签页搜索
+        tabsearch_action = QAction(QIcon.fromTheme(QIcon.ThemeIcon.SystemSearch), "标签页搜索", self)
+        tabsearch_action.triggered.connect(self.show_find_tab_dialog)
+        self.toolbar.addAction(tabsearch_action)
+        # # 深色模式切换按钮
+        # self.dark_mode_toggle = QPushButton("🌙 深色模式")
+        # self.dark_mode_toggle.setCheckable(True)
+        # self.dark_mode_toggle.setStyleSheet("""
+        #     QPushButton {
+        #         padding: 5px 10px;
+        #         border: 1px solid #cbd5e0;
+        #         border-radius: 4px;
+        #         background-color: #f7fafc;
+        #     }
+        #     QPushButton:checked {
+        #         background-color: #2d3748;
+        #         color: #e2e8f0;
+        #     }
+        # """)
+        # self.dark_mode_toggle.toggled.connect(self.toggle_dark_mode)
+        # toolbar.addWidget(self.dark_mode_toggle)
+        self.toolbar.addSeparator()
 
     def setup_statusbar(self):
         self.status_bar = QStatusBar()
@@ -398,7 +423,7 @@ class MarkdownEditor(QMainWindow):
             tab = self.tab_widget.widget(index)
             count = len(tab.editor.toPlainText())
             if tab.file_path:
-                self.status_label.setText(f"就绪: {tab.file_path}\t总字数: {count}字\t")
+                self.status_label.setText(f"总字数: {count}字\t")
             else:
                 self.status_label.setText("新文档")
             self.update_cursor_position()
@@ -567,6 +592,22 @@ class MarkdownEditor(QMainWindow):
         if dialog.exec():
             text = dialog.get_text()
             self.find_in_editor(text)
+
+    def show_find_tab_dialog(self):
+        dialog = FindTabDialog(self)
+        if dialog.exec():
+            text = dialog.get_text()
+            self.find_in_tab(text)
+
+    def find_in_tab(self, text):
+        for i in range(self.tab_widget.count()):
+            tab = self.tab_widget.widget(i)
+            if text in os.path.basename(tab.file_path):
+                self.tab_widget.setCurrentIndex(i)
+                return
+        QMessageBox.information(self, "查找标签页", f"未找到标签页：{text}")
+            
+        pass
 
     def find_in_editor(self, text):
         tab = self.get_current_tab()

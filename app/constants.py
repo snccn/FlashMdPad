@@ -69,7 +69,7 @@ del, s { color: #6a737d; text-decoration: line-through; }
 /* 代码块和行内代码 - 关键调整 */
 pre, code {
     font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
-    font-size: 12px; /* GitHub 代码字体大小 */
+    font-size: 14px; /* GitHub 代码字体大小 */
 }
 pre {
     background: #f6f8fa;
@@ -82,7 +82,7 @@ pre {
 }
 code {
     background: rgba(27, 31, 35, 0.05);
-    color: #24292e;
+    # color: #24292e;
     padding: 0.2em 0.4em;
     border-radius: 3px;
     font-size: 85%; /* 相对父元素的85% */

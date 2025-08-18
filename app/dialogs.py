@@ -18,6 +18,23 @@ class FindDialog(QDialog):
     def get_text(self):
         return self.line_edit.text()
 
+class FindTabDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("查找标签页")
+        self.setFixedWidth(300)
+        layout = QHBoxLayout(self)
+        self.label = QLabel("标签页名称:")
+        self.line_edit = QLineEdit()
+        self.find_btn = QPushButton("查找下一个")
+        layout.addWidget(self.label)
+        layout.addWidget(self.line_edit)
+        layout.addWidget(self.find_btn)
+        self.find_btn.clicked.connect(self.accept)
+
+    def get_text(self):
+        return self.line_edit.text()
+
 class HelpDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -89,7 +106,7 @@ class ShortcutDialog(QDialog):
         layout = QVBoxLayout(self)
 
         shortcut_text = (
-            "FlashMdPad 常用快捷键：\n"
+            "FlashMdPad 常用快捷键： Mac上Ctrl为command键\n"
             "\n"
             "新建标签页：      Ctrl+N\n"
             "打开文件：        Ctrl+O\n"
@@ -98,11 +115,10 @@ class ShortcutDialog(QDialog):
             "关闭标签页：      Ctrl+W\n"
             "切换标签：        Ctrl+Tab / Ctrl+Shift+Tab\n"
             "查找：            Ctrl+F\n"
+            "查找标签页：       Ctrl(command)+Alt(option)+F\n"
             "替换：            Ctrl+H\n"
             "插入当前日期：    Ctrl+D\n"
-            "运算表达式：      Ctrl+Enter\n"
-            "切换深色模式：    Ctrl+M\n"
-            "预览同步滚动：    Ctrl+P\n"
+            "运算表达式：      Ctrl+E\n"
             "Markdown 帮助：   F1\n"
             "快捷键一览：      F2\n"
             "\n"
