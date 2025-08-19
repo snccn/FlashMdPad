@@ -12,20 +12,29 @@ if getattr(sys, 'frozen', False):
 else:
     base_path = os.path.realpath(".")
 
-icon_resource_path = os.path.join(base_path, 'resources/icons/icon.png')
+# 设置应用样式
+if sys.platform == "darwin":
+    APPSTYLE = "Fusion"
+    TRAY_MODE = False
+    icon_resource_path = os.path.join(base_path, 'resources/icons/icon.png')
+elif sys.platform == "win32":
+    icon_resource_path = os.path.join(base_path, 'resources/icons/icon.png')
+    print(icon_resource_path)
+    try:
+        APPSTYLE = "Windowsvista"
+        TRAY_MODE = True
+    except:
+        APPSTYLE = "Fusion"
+        TRAY_MODE = True
+else:
+    APPSTYLE = "Fusion"
+    TRAY_MODE = True
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     
-    # 设置应用样式
-    if sys.platform == "darwin":
-        app.setStyle("Fusion")
-    elif sys.platform == "win32":
-        app.setQuitOnLastWindowClosed(False)
-        app.setStyle("Fusion")
-    else:
-        app.setQuitOnLastWindowClosed(False)
-        app.setStyle("Fusion")
+    app.setQuitOnLastWindowClosed(TRAY_MODE)
     
     app.setWindowIcon(QIcon(icon_resource_path))
 

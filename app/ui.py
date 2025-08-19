@@ -2,7 +2,7 @@
 
 import os, sys
 from PySide6.QtGui import (Qt, QAction, QIcon, QKeySequence, QPalette,QColor,QTextCursor)
-from PySide6.QtWidgets import (QMainWindow, QTabWidget, QWidget,QInputDialog,
+from PySide6.QtWidgets import (QMainWindow, QTabWidget, QWidget,QInputDialog,QSlider,
                               QVBoxLayout,QApplication,QPushButton,QToolBar,QFontDialog,
                               QLabel, QFileDialog, QMessageBox, QStatusBar)
 from PySide6.QtCore import QSize,Signal,QSettings,QEvent
@@ -218,7 +218,7 @@ class MarkdownEditor(QMainWindow):
         """设置工具栏"""
         self.toolbar = QToolBar("主工具栏")
         self.toolbar.setMovable(False)
-        self.toolbar.setIconSize(QSize(20, 20))
+        self.toolbar.setIconSize(QSize(18, 18))
         self.addToolBar(Qt.TopToolBarArea, self.toolbar)
         # self.toolbar.setLayout()
         
@@ -233,7 +233,7 @@ class MarkdownEditor(QMainWindow):
         self.toolbar.addAction(save_action)
 
         # 另存为
-        save_as_action = QAction(QIcon.fromTheme("go-jump"),"另存为", self)
+        save_as_action = QAction(QIcon.fromTheme("document-save-as"),"另存为", self)
         save_as_action.triggered.connect(self.save_as_current)
         self.toolbar.addAction(save_as_action)
         
@@ -257,7 +257,7 @@ class MarkdownEditor(QMainWindow):
         self.toolbar.addSeparator()
         
         # 字体设置
-        setfont_action = QAction(QIcon.fromTheme("font-x-generic"), "字体设置", self)
+        setfont_action = QAction(QIcon.fromTheme("preferences-desktop-font"), "字体设置", self)
         setfont_action.triggered.connect(self.SetFontFamily)
         self.toolbar.addAction(setfont_action)
 
@@ -267,6 +267,11 @@ class MarkdownEditor(QMainWindow):
         tabsearch_action = QAction(QIcon.fromTheme(QIcon.ThemeIcon.SystemSearch), "标签页搜索", self)
         tabsearch_action.triggered.connect(self.show_find_tab_dialog)
         self.toolbar.addAction(tabsearch_action)
+
+        # 运算表达式
+        caculate_current_row_action = QAction(QIcon.fromTheme(QIcon.ThemeIcon.Computer), "运算表达式", self)
+        caculate_current_row_action.triggered.connect(self.caculate_current_row)
+        self.toolbar.addAction(caculate_current_row_action)
         # # 深色模式切换按钮
         # self.dark_mode_toggle = QPushButton("🌙 深色模式")
         # self.dark_mode_toggle.setCheckable(True)
@@ -476,10 +481,7 @@ class MarkdownEditor(QMainWindow):
             palette.setColor(QPalette.Highlight, QColor(191, 222, 255))
             palette.setColor(QPalette.HighlightedText, Qt.black)
             QApplication.setPalette(palette)
-        
-        # 更新菜单和工具栏状态
-        # self.dark_mode_action.setChecked(dark_mode)
-        # self.dark_mode_toggle.setText("☀️ 浅色模式" if dark_mode else "🌙 深色模式")
+    
     
     def add_split(self):
         self.get_current_tab().add_str_to_editor("-------------------")
