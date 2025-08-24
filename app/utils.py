@@ -143,6 +143,7 @@ class MarkdownTab(QWidget):
         # Markdown编辑器
         self.editor = CodeEditor(parent=self,dark_mode=self.dark_mode)
         self.editor.setObjectName("markdownEditor")
+        self.editor.setLineWrapMode(QPlainTextEdit.LineWrapMode.WidgetWidth)
         # self.editor.setFont(QFont(FONT_FAMILY, 12))
         self.editor.textChanged.connect(self.update_preview)
         self.editor.textChanged.connect(self.set_modified)

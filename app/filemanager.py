@@ -29,7 +29,10 @@ class FileManager(object):
 
     def GetFileList(self):
         for file_path in self.list_files(self.path):
-            self.FileList.append(file_path)
+            if file_path.split(".")[-1] == 'db':
+                pass
+            else:
+                self.FileList.append(file_path)
     def delete_file(self, path):
         return delete_file_by_name(path=path)
 

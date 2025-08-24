@@ -1,6 +1,11 @@
 # coding:utf-8
 from PySide6.QtWidgets import QDialog, QLineEdit, QHBoxLayout, QPushButton, QLabel, QVBoxLayout, QTextEdit
 
+class PreferenceDialog(QDialog):
+    def __init__(self,parent=None):
+        super.__init__(parent)
+        
+
 class FindDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
