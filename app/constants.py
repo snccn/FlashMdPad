@@ -4,12 +4,32 @@ import sys
 
 OS_TYPE = sys.platform
 
+
+
+if getattr(sys, 'frozen', False):
+    base_path = sys._MEIPASS  # PyInstaller 临时解压路径
+    base_path_execute = os.path.realpath(sys.executable)
+else:
+    base_path = os.path.realpath(".")
+    base_path_execute = base_path
+
 if OS_TYPE == "darwin":
     FONT_FAMILY = "Consolas"
+    base_path_execute = os.path.expanduser("~/.flashpad/")
+    CFG_PATH = os.path.join(base_path_execute,'config.ini')
 elif OS_TYPE == "win32":
     FONT_FAMILY = "Microsoft YaHei"
+    CFG_PATH = os.path.join(base_path_execute,'config.ini')
 else:
+    base_path_execute = os.path.expanduser("~/.flashpad/")
+    CFG_PATH = os.path.join(base_path_execute,'config.ini')
     FONT_FAMILY = "Arial"
+
+CFG_GENERAL_SECTION = "app"
+FONT_SIZE = 12
+
+KEY_FONT_FAMILY = "font_family"
+KEY_FONT_SIZE = "font_size"
 
 LIGHT_THEME_CSS = """
 /* 基础样式调整 - 更贴近GitHub风格 */

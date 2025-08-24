@@ -10,7 +10,8 @@ from PySide6.QtCore import QSize,Signal,QSettings,QEvent
 from app.utils import MarkdownTab
 from app.filemanager import FileManager, rename_with_pathlib
 from app.dialogs import FindDialog, HelpDialog,ShortcutDialog, FindTabDialog
-from app.constants import FONT_FAMILY
+from app.constants import FONT_FAMILY, CFG_PATH, CFG_GENERAL_SECTION, KEY_FONT_FAMILY,KEY_FONT_SIZE
+from app.config import config
 import time
 import datetime
 
@@ -20,6 +21,7 @@ class MarkdownEditor(QMainWindow):
     settings = QSettings("FlashMdPad", "UserSettings")
     def __init__(self):
         super().__init__()
+        self.cfg = config(CFG_PATH)
         self.setWindowTitle("FlashMdPad")
         self.resize(1200, 800)
         self.setup_ui()
@@ -165,6 +167,13 @@ class MarkdownEditor(QMainWindow):
         self.set_ontop_action.triggered.connect(lambda checked: self.set_window_on_top(checked))
         view_menu.addAction(self.set_ontop_action)
 
+        # Preview模式
+        self.set_preview_action = QAction("预览模式", self)
+        self.set_preview_action.setCheckable(True)
+        self.set_preview_action.setShortcut(QKeySequence("F10"))
+        self.set_preview_action.triggered.connect(lambda checked: self.set_previre_mode())
+        view_menu.addAction(self.set_preview_action)
+
         # 标签页菜单
         tab_menu = self.menuBar().addMenu("标签页")
         
@@ -272,6 +281,12 @@ class MarkdownEditor(QMainWindow):
         caculate_current_row_action = QAction(QIcon.fromTheme(QIcon.ThemeIcon.Computer), "运算表达式", self)
         caculate_current_row_action.triggered.connect(self.caculate_current_row)
         self.toolbar.addAction(caculate_current_row_action)
+
+        # 预览模式
+        preview_mode_action = QAction(QIcon.fromTheme(QIcon.ThemeIcon.MailSend), "预览模式", self)
+        preview_mode_action.triggered.connect(self.set_previre_mode)
+        self.toolbar.addAction(preview_mode_action)
+
         # # 深色模式切换按钮
         # self.dark_mode_toggle = QPushButton("🌙 深色模式")
         # self.dark_mode_toggle.setCheckable(True)
@@ -580,11 +595,14 @@ class MarkdownEditor(QMainWindow):
         self.show()  # 需要重新 show 才会生效
 
     def SetFontFamily(self):
-        current_font = self.get_current_tab().font()
+        current_font = self.cfg.get(CFG_GENERAL_SECTION, KEY_FONT_FAMILY, FONT_FAMILY)
         ok, font = QFontDialog.getFont(current_font, self, "选择字体")
 
         if ok:
             self.font = font.toString()
+            self.cfg.set(CFG_GENERAL_SECTION,KEY_FONT_FAMILY, self.font.split(",")[0])
+            self.cfg.set(CFG_GENERAL_SECTION,KEY_FONT_SIZE,self.font.split(",")[1])
+            self.cfg.save()
             for i in range(self.tab_widget.count()):
                 tab = self.tab_widget.widget(i)
                 tab.set_editor_font(font)
@@ -630,3 +648,7 @@ class MarkdownEditor(QMainWindow):
         """计算当前行的表达式"""
         tab = self.get_current_tab()
         res = tab.evaluate_current_row_expression()
+
+    def set_previre_mode(self):
+        tab = self.get_current_tab()
+        tab.set_preview_mode()

@@ -7,12 +7,10 @@ from PySide6.QtGui import ( QColor, QPalette, QIcon, QAction, QKeySequence)
 from PySide6.QtWidgets import (QApplication,QMenu, QSystemTrayIcon)
 
 from app.ui import MarkdownEditor
+from app.constants import CFG_GENERAL_SECTION, base_path, CFG_PATH
+from app.config import config
 
 
-if getattr(sys, 'frozen', False):
-    base_path = sys._MEIPASS  # PyInstaller 临时解压路径
-else:
-    base_path = os.path.realpath(".")
 
 # 设置应用样式
 if sys.platform == "darwin":
@@ -39,6 +37,12 @@ def CreateApp(argv:list[str]=sys.argv):
     
     app.setWindowIcon(QIcon(icon_resource_path))
     app.setStyle(APPSTYLE)
+
+    cfg = config(CFG_PATH)
+    cfg.get(CFG_GENERAL_SECTION,"TRAY_MODE", 'True')
+    cfg.get(CFG_GENERAL_SECTION,"APPSTYLE", 'fusion')
+    cfg.save()
+
 
     # 设置调色板
     palette = QPalette()

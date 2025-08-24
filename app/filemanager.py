@@ -29,7 +29,8 @@ class FileManager(object):
 
     def GetFileList(self):
         for file_path in self.list_files(self.path):
-            if file_path.split(".")[-1] == 'db':
+            prefix = file_path.split(".")[-1]
+            if  prefix == 'db' or prefix == 'ini':
                 pass
             else:
                 self.FileList.append(file_path)

@@ -10,8 +10,9 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QSplitter, QPlainTextEdit,Q
 from PySide6.QtWebEngineCore import QWebEnginePage
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
-from app.constants import LIGHT_THEME_CSS, DARK_THEME_CSS, FONT_FAMILY
+from app.constants import LIGHT_THEME_CSS, DARK_THEME_CSS, FONT_FAMILY, CFG_PATH, CFG_GENERAL_SECTION, FONT_SIZE, KEY_FONT_SIZE, KEY_FONT_FAMILY
 from app.editor import CodeEditor
+from app.config import config
 from bleach.sanitizer import Cleaner
 
 class ExternalLinkPage(QWebEnginePage):
@@ -126,25 +127,33 @@ class MarkdownTab(QWidget):
     modificationChanged = Signal(QWidget)
     def __init__(self, parent=None, file_path=None, dark_mode=False):
         super().__init__(parent)
+        self.cfg = config(CFG_PATH)
+        self.font_family = self.cfg.get(CFG_GENERAL_SECTION, KEY_FONT_FAMILY, FONT_FAMILY)
+        self.font_size = self.cfg.get_int(CFG_GENERAL_SECTION, KEY_FONT_SIZE, FONT_SIZE)
+        print(self.font_family, self.font_size)
         self.file_path = file_path
         self.is_modified = False
         self.dark_mode = dark_mode
         self.XSSCleaner = XSSCleaner()
+        # 分割器：左侧编辑区，右侧预览区
+        self.splitter = QSplitter(Qt.Horizontal)
+        self.preview_mode = False
         self.setup_ui()
         
     def setup_ui(self):
         # 主布局
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        
-        # 分割器：左侧编辑区，右侧预览区
-        splitter = QSplitter(Qt.Horizontal)
-        
+
         # Markdown编辑器
         self.editor = CodeEditor(parent=self,dark_mode=self.dark_mode)
         self.editor.setObjectName("markdownEditor")
         self.editor.setLineWrapMode(QPlainTextEdit.LineWrapMode.WidgetWidth)
-        # self.editor.setFont(QFont(FONT_FAMILY, 12))
+        # print(self.font_family, FONT_FAMILY)
+        ft = QFont(self.font_family)
+        ft.setPixelSize(self.font_size)
+        self.set_editor_font(ft)
+        
         self.editor.textChanged.connect(self.update_preview)
         self.editor.textChanged.connect(self.set_modified)
         
@@ -163,11 +172,12 @@ class MarkdownTab(QWidget):
         # self.preview.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         
         # 添加到分割器
-        splitter.addWidget(self.editor)
-        splitter.addWidget(self.preview)
-        splitter.setSizes([600, 400])
+        self.splitter.addWidget(self.editor)
+        self.splitter.addWidget(self.preview)
+        self.splitter.setSizes([600, 400])
+        layout.addWidget(self.splitter)
+
         
-        layout.addWidget(splitter)
         
         # 如果有文件路径，加载内容
         if self.file_path and os.path.exists(self.file_path):
@@ -177,6 +187,15 @@ class MarkdownTab(QWidget):
         cursor = self.editor.textCursor()
         cursor.insertText(targetstr)
         self.editor.setTextCursor(cursor)
+
+    def set_preview_mode(self):
+        if not self.preview_mode:
+            self.splitter.setSizes([0, self.width()])
+            self.preview_mode = True
+        else:
+            self.splitter.setSizes([600,400])
+            self.preview_mode = False
+
 
     def toggle_dark_mode(self, dark_mode):
         """切换深色/浅色模式"""
