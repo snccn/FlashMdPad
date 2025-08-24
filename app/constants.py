@@ -8,7 +8,7 @@ OS_TYPE = sys.platform
 
 if getattr(sys, 'frozen', False):
     base_path = sys._MEIPASS  # PyInstaller 临时解压路径
-    base_path_execute = os.path.realpath(sys.executable)
+    base_path_execute = os.path.dirname(sys.executable)
 else:
     base_path = os.path.realpath(".")
     base_path_execute = base_path
@@ -19,6 +19,7 @@ if OS_TYPE == "darwin":
     CFG_PATH = os.path.join(base_path_execute,'config.ini')
 elif OS_TYPE == "win32":
     FONT_FAMILY = "Microsoft YaHei"
+    os.path.realpath(base_path_execute)
     CFG_PATH = os.path.join(base_path_execute,'config.ini')
 else:
     base_path_execute = os.path.expanduser("~/.flashpad/")
