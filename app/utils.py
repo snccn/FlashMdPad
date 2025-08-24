@@ -130,7 +130,6 @@ class MarkdownTab(QWidget):
         self.cfg = config(CFG_PATH)
         self.font_family = self.cfg.get(CFG_GENERAL_SECTION, KEY_FONT_FAMILY, FONT_FAMILY)
         self.font_size = self.cfg.get_int(CFG_GENERAL_SECTION, KEY_FONT_SIZE, FONT_SIZE)
-        print(self.font_family, self.font_size)
         self.file_path = file_path
         self.is_modified = False
         self.dark_mode = dark_mode
@@ -149,7 +148,6 @@ class MarkdownTab(QWidget):
         self.editor = CodeEditor(parent=self,dark_mode=self.dark_mode)
         self.editor.setObjectName("markdownEditor")
         self.editor.setLineWrapMode(QPlainTextEdit.LineWrapMode.WidgetWidth)
-        # print(self.font_family, FONT_FAMILY)
         ft = QFont(self.font_family)
         ft.setPixelSize(self.font_size)
         self.set_editor_font(ft)
