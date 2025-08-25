@@ -3,6 +3,7 @@
 
 import configparser
 import os
+from app.constants import *
 
 class SingletonMeta(type):
     _instances = {}  # 用于存储类的实例
@@ -20,7 +21,9 @@ class config(metaclass=SingletonMeta):
         self.config = configparser.ConfigParser()
         if os.path.exists(self.file_path):
             self.config.read(self.file_path, encoding='utf-8')
-        pass
+        else:
+            self.generate_new_config()
+            self.save()
 
     def set(self, section, key, value):
         """
@@ -96,7 +99,11 @@ class config(metaclass=SingletonMeta):
         if self.config.has_section(section) and self.config.has_option(section, key):
             return self.config.remove_option(section, key)
         return False
+    
     def generate_new_config(self):
-        
+        self.set(CFG_GENERAL_SECTION,KEY_APPSTYLE,APPSTYLE)
+        self.set(CFG_GENERAL_SECTION,KEY_TOOLBAR_ENABLE,TOOLBAR_ENABLE)
+        self.set(CFG_GENERAL_SECTION,KEY_FONT_FAMILY,FONT_FAMILY)
+        self.set(CFG_GENERAL_SECTION,KEY_FONT_SIZE,FONT_SIZE)
         pass
 

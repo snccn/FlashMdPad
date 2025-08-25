@@ -7,27 +7,8 @@ from PySide6.QtGui import ( QColor, QPalette, QIcon, QAction, QKeySequence)
 from PySide6.QtWidgets import (QApplication,QMenu, QSystemTrayIcon)
 
 from app.ui import MarkdownEditor
-from app.constants import CFG_GENERAL_SECTION, base_path, CFG_PATH
+from app.constants import *
 from app.config import config
-
-
-
-# 设置应用样式
-if sys.platform == "darwin":
-    APPSTYLE = "fusion"
-    TRAY_MODE = False
-    icon_resource_path = os.path.join(base_path, 'resources/icons/icon.png')
-elif sys.platform == "win32":
-    icon_resource_path = os.path.join(base_path, 'resources/icons/icon.png')
-    try:
-        APPSTYLE = "windowsvista"
-        TRAY_MODE = True
-    except:
-        APPSTYLE = "fusion"
-        TRAY_MODE = True
-else:
-    APPSTYLE = "fusion"
-    TRAY_MODE = True
 
 
 def CreateApp(argv:list[str]=sys.argv):
@@ -36,7 +17,7 @@ def CreateApp(argv:list[str]=sys.argv):
     app.setQuitOnLastWindowClosed(TRAY_MODE)
     
     app.setWindowIcon(QIcon(icon_resource_path))
-    app.setStyle(APPSTYLE)
+    
 
     cfg = config(CFG_PATH)
     cfg.get(CFG_GENERAL_SECTION,"TRAY_MODE", 'True')
@@ -53,6 +34,9 @@ def CreateApp(argv:list[str]=sys.argv):
     editor = MarkdownEditor()
     editor.show()
 
+    app_style = editor.cfg.get(CFG_GENERAL_SECTION,KEY_APPSTYLE, APPSTYLE)
+    app.setStyle(app_style)
+    
     if not sys.platform == "darwin":
         tray = QSystemTrayIcon()
         tray.setToolTip("FlashMdPad")

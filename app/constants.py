@@ -15,10 +15,12 @@ else:
 
 if OS_TYPE == "darwin":
     FONT_FAMILY = "Consolas"
+    TOOLBAR_ENABLE = False
     base_path_execute = os.path.expanduser("~/.flashpad/")
     CFG_PATH = os.path.join(base_path_execute,'config.ini')
 elif OS_TYPE == "win32":
     FONT_FAMILY = "Microsoft YaHei"
+    TOOLBAR_ENABLE = True
     os.path.realpath(base_path_execute)
     CFG_PATH = os.path.join(base_path_execute,'config.ini')
 else:
@@ -26,11 +28,30 @@ else:
     CFG_PATH = os.path.join(base_path_execute,'config.ini')
     FONT_FAMILY = "Arial"
 
+# 设置应用样式
+if sys.platform == "darwin":
+    APPSTYLE = "fusion"
+    TRAY_MODE = False
+    icon_resource_path = os.path.join(base_path, 'resources/icons/icon.png')
+elif sys.platform == "win32":
+    icon_resource_path = os.path.join(base_path, 'resources/icons/icon.png')
+    try:
+        APPSTYLE = "windowsvista"
+        TRAY_MODE = True
+    except:
+        APPSTYLE = "fusion"
+        TRAY_MODE = True
+else:
+    APPSTYLE = "fusion"
+    TRAY_MODE = True
+
 CFG_GENERAL_SECTION = "app"
 FONT_SIZE = 12
 
 KEY_FONT_FAMILY = "font_family"
 KEY_FONT_SIZE = "font_size"
+KEY_TOOLBAR_ENABLE = "toolbar"
+KEY_APPSTYLE = "app_style"
 
 LIGHT_THEME_CSS = """
 /* 基础样式调整 - 更贴近GitHub风格 */

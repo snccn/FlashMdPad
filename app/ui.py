@@ -10,7 +10,7 @@ from PySide6.QtCore import QSize,Signal,QSettings,QEvent
 from app.utils import MarkdownTab
 from app.filemanager import FileManager, rename_with_pathlib
 from app.dialogs import FindDialog, HelpDialog,ShortcutDialog, FindTabDialog
-from app.constants import FONT_FAMILY, CFG_PATH, CFG_GENERAL_SECTION, KEY_FONT_FAMILY,KEY_FONT_SIZE
+from app.constants import *
 from app.config import config
 import time
 import datetime
@@ -31,7 +31,6 @@ class MarkdownEditor(QMainWindow):
         self.dark_mode = False
         self.fm = FileManager()
         self.font = ""
-        # self.settings.value("editorFont",FONT_FAMILY, self.font)
 
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setAttribute(Qt.WA_NoSystemBackground, False)
@@ -225,6 +224,8 @@ class MarkdownEditor(QMainWindow):
 
     def setup_toolbar(self):
         """设置工具栏"""
+        if not self.cfg.get_bool(CFG_GENERAL_SECTION, KEY_TOOLBAR_ENABLE, TOOLBAR_ENABLE):
+            return 
         self.toolbar = QToolBar("主工具栏")
         self.toolbar.setMovable(False)
         self.toolbar.setIconSize(QSize(18, 18))
