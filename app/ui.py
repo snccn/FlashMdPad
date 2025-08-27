@@ -12,6 +12,7 @@ from app.filemanager import FileManager, rename_with_pathlib
 from app.dialogs import FindDialog, HelpDialog,ShortcutDialog, FindTabDialog
 from app.constants import *
 from app.config import config
+
 import time
 import datetime
 
@@ -22,18 +23,21 @@ class MarkdownEditor(QMainWindow):
     def __init__(self):
         super().__init__()
         self.cfg = config(CFG_PATH)
+        self.dark_mode = self.cfg.get_bool(CFG_GENERAL_SECTION, KEY_DARK_MODE, False)
+        self.workspace = self.cfg.get(CFG_GENERAL_SECTION,KEY_WORKSPACE,"")
         self.setWindowTitle("FlashMdPad")
         self.resize(1200, 800)
         self.setup_ui()
         self.setup_menu()
         self.setup_toolbar()
         self.setup_statusbar()
-        self.dark_mode = False
-        self.fm = FileManager()
+
+        self.fm = FileManager(self.workspace)
         self.font = ""
 
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setAttribute(Qt.WA_NoSystemBackground, False)
+        self.update_theme(self.dark_mode)
         
         # 初始标签页
         if len(self.fm.FileList) == 0:
@@ -150,9 +154,10 @@ class MarkdownEditor(QMainWindow):
         
         # 深色模式
         self.dark_mode_action = QAction("深色模式", self)
+        self.dark_mode_action.setChecked(self.dark_mode)
         self.dark_mode_action.setCheckable(True)
         self.dark_mode_action.triggered.connect(self.toggle_dark_mode)
-        # view_menu.addAction(self.dark_mode_action)
+        view_menu.addAction(self.dark_mode_action)
 
         # 字体设置
         self.set_font_action = QAction("字体设置", self)
@@ -453,6 +458,8 @@ class MarkdownEditor(QMainWindow):
 
     def toggle_dark_mode(self, checked):
         """切换深色模式"""
+        self.cfg.set(CFG_GENERAL_SECTION,KEY_DARK_MODE,not self.dark_mode)
+        self.cfg.save()
         self.dark_mode = checked
         self.themeChanged.emit(checked)  # 发出主题变化信号
 

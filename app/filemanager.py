@@ -8,13 +8,16 @@ class FileManager(object):
     FileList = []
     path = ""
     def __init__(self, basepath=""):
-        if os.name == "nt":
-            if getattr(sys, 'frozen', False):
-                self.path = os.path.join(os.path.dirname(sys.argv[-1]),"data")
-            else:
-                self.path = os.path.join(os.path.dirname(__file__),"data")
+        if not basepath == "":
+            self.path = os.path.dirname(basepath)
         else:
-            self.path = os.path.expanduser("~/.flashpad/")
+            if os.name == "nt":
+                if getattr(sys, 'frozen', False):
+                    self.path = os.path.join(os.path.dirname(sys.argv[-1]),"data")
+                else:
+                    self.path = os.path.join(os.path.dirname(__file__),"data")
+            else:
+                self.path = os.path.expanduser("~/.flashpad/")
         if not os.path.exists(self.path):
             os.makedirs(self.path)
         self.GetFileList()

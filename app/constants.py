@@ -52,110 +52,114 @@ KEY_FONT_FAMILY = "font_family"
 KEY_FONT_SIZE = "font_size"
 KEY_TOOLBAR_ENABLE = "toolbar"
 KEY_APPSTYLE = "app_style"
+KEY_WORKSPACE = "work_path"
+KEY_LIGHT_THEME_CSS = "theme_css"
+KEY_DARK_THEME_CSS = "theme_dark_css"
+KEY_DARK_MODE = "darkmode"
 
 LIGHT_THEME_CSS = """
-/* 基础样式调整 - 更贴近GitHub风格 */
+/* 全局基础样式 - 极简核心 */
 body {
-    background-color: #ffffff; /* GitHub 浅色模式背景 */
-    color: #24292e; /* GitHub 主要文本色 */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-    line-height: 1.5; /* GitHub 行高 */
-    font-size: 16px;
     margin: 0;
     padding: 0;
+    background-color: #ffffff;
+    color: #24292e;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5; /* 保证阅读流畅性的核心行高 */
 }
 
+/* 内容容器 - 聚焦阅读区域 */
 .markdown-body {
-    max-width: 980px; /* GitHub 内容最大宽度 */
+    max-width: 880px; /* 适度收窄宽度，减少视线跨度 */
     margin: 0 auto;
-    padding: 45px; /* GitHub 内边距 */
+    padding: 32px 24px; /* 上下留足呼吸感，左右适配窄屏 */
     background: #ffffff;
-    border-radius: 0; /* 移除圆角，GitHub 无圆角 */
-    box-shadow: none; /* 移除阴影 */
 }
 
-/* 标题样式 - 调整颜色和间距 */
+/* 标题样式 - 层级清晰无冗余 */
 h1, h2, h3, h4, h5, h6 {
-    font-weight: 600; /* GitHub 标题字重 */
-    #margin-top: 24px;
-    margin-bottom: 16px;
-    line-height: 1.25;
+    font-weight: 600;
+    margin-top: 28px;
+    margin-bottom: 12px;
+    line-height: 1.2; /* 标题更紧凑 */
+    color: #24292e;
 }
 
-h1 { 
-    font-size: 2em; 
-    color: #24292e; 
-    border-bottom: 1px solid #eaecef; /* 标题下划线 */
-    padding-bottom: 0.3em;
-}
-h2 { 
-    font-size: 1.5em; 
-    color: #24292e; 
+/* 仅h1/h2保留下划线，区分核心层级 */
+h1 {
+    font-size: 2em;
     border-bottom: 1px solid #eaecef;
-    padding-bottom: 0.3em;
+    padding-bottom: 0.2em;
 }
-h3 { font-size: 1.25em; color: #24292e; }
-h4 { font-size: 1em; color: #24292e; }
-h5 { font-size: 0.875em; color: #24292e; }
-h6 { font-size: 0.85em; color: #6a737d; }
 
-/* 段落和文本 */
-p { 
-    margin-top: 0;
-    margin-bottom: 16px; /* GitHub 段落间距 */
+h2 {
+    font-size: 1.5em;
+    border-bottom: 1px solid #eaecef;
+    padding-bottom: 0.2em;
 }
-strong { color: #24292e; }
-em { color: #24292e; }
-del, s { color: #6a737d; text-decoration: line-through; }
 
-/* 代码块和行内代码 - 关键调整 */
+/* 次级标题简化，无下划线 */
+h3 { font-size: 1.25em; }
+h4 { font-size: 1em; }
+h5 { font-size: 0.875em; }
+h6 { font-size: 0.85em; color: #6a737d; } /* 仅h6降色，突出层级 */
+
+/* 文本元素 - 去装饰，重内容 */
+p {
+    margin: 0 0 14px 0; /* 统一段落间距，避免拥挤 */
+}
+
+strong { color: #24292e; } /* 保持强调色与正文一致，仅靠字重突出 */
+em { color: #24292e; font-style: italic; } /* 仅保留斜体，无额外色值 */
+del, s { color: #6a737d; text-decoration: line-through; } /* 简化删除线样式 */
+
+/* 代码块 - 轻量突出，不抢视线 */
 pre, code {
     font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
-    font-size: 14px; /* GitHub 代码字体大小 */
+    font-size: 14px;
 }
+
 pre {
     background: #f6f8fa;
-    border-radius: 3px; /* 更小圆角 */
-    padding: 16px;
+    border-radius: 3px; /* 极小圆角，弱化边框感 */
+    padding: 14px;
     overflow: auto;
-    margin-bottom: 16px;
-    border-left: none; /* 移除左侧边框 */
-    word-wrap: normal;
+    margin: 0 0 14px 0;
 }
+
 code {
     background: rgba(27, 31, 35, 0.05);
-    # color: #24292e;
     padding: 0.2em 0.4em;
     border-radius: 3px;
-    font-size: 85%; /* 相对父元素的85% */
+    font-size: 85%; /* 相对父元素微调，保持协调 */
 }
 
-/* 引用 */
+/* 引用 - 极简边框，无多余背景 */
 blockquote {
-    border-left: 4px solid #eaecef; /* GitHub 引用边框色 */
-    background: transparent; /* 移除背景色 */
+    border-left: 3px solid #eaecef; /* 减窄边框，更内敛 */
     color: #6a737d;
     padding: 0 1em;
-    margin: 0 0 16px 0;
-    border-radius: 0;
-    font-style: normal; /* 移除斜体 */
+    margin: 0 0 14px 0;
 }
 
-/* 列表 */
+/* 列表 - 精简间距，提升可读性 */
 ul, ol {
-    margin-bottom: 16px;
-    padding-left: 2em;
-    margin-top: 0;
-}
-ul li, ol li {
-    margin-bottom: 0.25em;
-}
-ul ul, ol ul, ul ol, ol ol {
-    margin-bottom: 0;
-    margin-top: 0;
+    margin: 0 0 14px 0;
+    padding-left: 1.8em; /* 适度缩进，避免过宽 */
 }
 
-/* 任务列表 */
+ul li, ol li {
+    margin-bottom: 0.2em; /* 减少列表项间距，更紧凑 */
+}
+
+/* 嵌套列表无额外间距，保持层级干净 */
+ul ul, ol ul, ul ol, ol ol {
+    margin: 0;
+    padding-left: 1.2em;
+}
+
+/* 任务列表 - 简化样式，聚焦勾选状态 */
 .markdown-body input[type="checkbox"] {
     width: 1em;
     height: 1em;
@@ -165,41 +169,40 @@ ul ul, ol ul, ul ol, ol ol {
     pointer-events: none;
 }
 
-/* 表格 */
+/* 表格 - 去阴影，轻边框 */
 table {
     border-collapse: collapse;
     width: 100%;
-    margin-bottom: 16px;
-    background: transparent;
-    border-radius: 0;
-    overflow: visible;
-    box-shadow: none;
+    margin: 0 0 14px 0;
 }
+
 th, td {
-    border: 1px solid #eaecef;
-    padding: 6px 13px;
+    border: 1px solid #eaecef; /* 细边框，减少厚重感 */
+    padding: 6px 12px; /* 精简内边距，避免表格过宽 */
     text-align: left;
 }
+
 th {
     background: #f6f8fa;
     font-weight: 600;
-    color: #24292e;
 }
+
+/* 偶数行背景简化，仅轻微区分 */
 tr:nth-child(even) {
     background: #f6f8fa;
 }
 
-/* 链接 */
+/* 链接 - 弱化 hover 变化，保持稳定感 */
 a {
-    color: #0366d6; /* GitHub 链接色 */
+    color: #0366d6;
     text-decoration: none;
 }
+
 a:hover {
-    color: #0366d6;
-    text-decoration: underline;
+    text-decoration: underline; /* 仅添加下划线，无额外色变 */
 }
 
-/* 水平线 */
+/* 水平线 - 极简线条 */
 hr {
     border: 0;
     height: 1px;
@@ -207,238 +210,170 @@ hr {
     margin: 24px 0;
 }
 
-/* 脚注 */
+/* 脚注 - 简化样式，与链接统一 */
 sup {
     font-size: 0.85em;
     color: #0366d6;
+    vertical-align: super;
 }
 
-/* 图片样式 */
+/* 图片 - 纯净展示，无多余装饰 */
 img {
     max-width: 100%;
-    box-sizing: content-box;
+    box-sizing: border-box;
     background-color: #ffffff;
+    margin: 0 0 14px 0; /* 统一图片间距 */
 }
 
-/* 暗色模式调整 - 贴近GitHub Dark */
+/* 暗色模式 - 同步简约风格，仅调整核心色值 */
 @media (prefers-color-scheme: dark) {
     body {
         background-color: #0d1117;
         color: #c9d1d9;
     }
+
     .markdown-body {
         background: #0d1117;
     }
+
     h1, h2, h3, h4, h5 {
         color: #c9d1d9;
         border-bottom-color: #21262d;
     }
+
     h6 {
         color: #8b949e;
     }
+
     pre {
         background: #161b22;
     }
+
     code {
         background: rgba(110, 118, 129, 0.4);
         color: #c9d1d9;
     }
+
     blockquote {
         border-left-color: #30363d;
         color: #8b949e;
     }
+
     table {
         border-color: #30363d;
     }
+
     th, td {
         border-color: #30363d;
     }
-    th {
-        background: #161b22;
-        color: #c9d1d9;
-    }
-    tr:nth-child(even) {
+
+    th, tr:nth-child(even) {
         background: #161b22;
     }
+
     a {
         color: #58a6ff;
     }
-    a:hover {
-        color: #58a6ff;
-    }
+
     hr {
         background: #30363d;
     }
+
     img {
         background-color: #0d1117;
     }
 }
+
 """
 
 DARK_THEME_CSS = """
-/* 深色模式样式表 - 高对比度版本 */
-body {
-    background-color: #121212;
-    color: #e0e0e0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    line-height: 1.6;
-    font-size: 16px;
-    margin: 0;
-    padding: 0;
-}
-
+/* 全局基础样式 - 极简核心（浅色模式保留原逻辑，此处仅展示深色模式优化） */
+/* 内容容器 - 聚焦阅读区域 */
 .markdown-body {
-    max-width: 900px;
+    max-width: 880px; /* 适度收窄宽度，减少视线跨度 */
     margin: 0 auto;
-    padding: 30px;
-    background-color: #1e1e1e;
-    border-radius: 4px;
+    padding: 32px 24px; /* 上下留足呼吸感，左右适配窄屏 */
+    background: #121212;
 }
 
-/* 标题样式 */
-h1, h2, h3, h4, h5, h6 {
-    color: #bb86fc;
-    margin-top: 1.8em;
-    margin-bottom: 0.8em;
-    font-weight: 600;
+body {
+    background-color: #121212; /* 比GitHub默认#0d1117稍浅，更柔和 */
+    color: #e0e0e0; /* 正文色：浅灰而非纯白，降低强光刺激 */
 }
 
-h1 {
-    font-size: 2em;
-    border-bottom: 1px solid #333;
-    padding-bottom: 0.3em;
+
+/* 2. 标题层级：通过微妙色阶区分，避免同色单调 */
+h1, h2, h3, h4, h5 {
+    color: #f5f5f5; /* 主标题稍亮，提升辨识度 */
+    border-bottom-color: #2d2d2d; /* 下划线：深灰而非黑，弱化分割感 */
 }
 
-h2 {
-    font-size: 1.6em;
-    border-bottom: 1px solid #333;
-    padding-bottom: 0.2em;
+h6 {
+    color: #a0a0a0; /* 次级标题降色，明确层级 */
 }
 
-h3 { font-size: 1.3em; color: #9d4edd; }
-h4 { font-size: 1.1em; color: #9d4edd; }
-h5 { font-size: 1em; color: #7b2cbf; }
-h6 { font-size: 0.9em; color: #7b2cbf; }
-
-/* 文本样式 */
-p {
-    margin-bottom: 1em;
-}
-
-strong {
-    color: #f5f5f5;
-    font-weight: 600;
-}
-
-em {
-    color: #f0a988;
-    font-style: italic;
-}
-
-del {
-    color: #6c757d;
-    text-decoration: line-through;
-}
-
-/* 代码样式 */
-pre, code {
-    font-family: "JetBrains Mono", "Fira Code", monospace;
-    font-size: 14px;
-}
-
+/* 3. 代码块：暗部细节优化，避免模糊 */
 pre {
-    background-color: #121212;
-    border-radius: 4px;
-    padding: 16px;
-    overflow-x: auto;
-    margin: 1.5em 0;
-    border: 1px solid #333;
+    background: #1e1e1e; /* 代码块底色：比页面深一级，形成轻微层次 */
+    border: 1px solid #2d2d2d; /* 细边框：区分代码块与正文，不突兀 */
 }
 
 code {
-    background-color: #2d2d2d;
-    color: #dcdcaa;
-    padding: 0.2em 0.4em;
-    border-radius: 3px;
+    background: rgba(70, 70, 70, 0.3); /* 行内代码背景：半透明，不抢视线 */
+    color: #d4d4d4; /* 代码色：比正文稍浅，保持可读性 */
 }
 
-/* 引用样式 */
+/* 4. 引用：弱化边框，统一色调 */
 blockquote {
-    border-left: 3px solid #bb86fc;
-    padding: 0.5em 1em;
-    margin: 1em 0;
-    background-color: #2d2d2d;
-    color: #d0d0d0;
-    border-radius: 0 4px 4px 0;
+    border-left-color: #3d3d3d; /* 引用边框：浅灰，避免深色中过扎眼 */
+    color: #b0b0b0; /* 引用文本：比正文暗一级，明确区分引用属性 */
 }
 
-/* 列表样式 */
-ul, ol {
-    margin: 1em 0;
-    padding-left: 2em;
-}
-
-li {
-    margin-bottom: 0.5em;
-}
-
-li::marker {
-    color: #bb86fc;
-}
-
-/* 任务列表 */
-input[type="checkbox"] {
-    accent-color: #03dac6;
-    margin-right: 0.5em;
-}
-
-/* 表格样式 */
+/* 5. 表格：柔和对比，避免刺眼 */
 table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1.5em 0;
+    border-color: #2d2d2d; /* 表格边框：与标题下划线同色，统一风格 */
 }
 
 th, td {
-    border: 1px solid #333;
-    padding: 0.8em 1em;
-    text-align: left;
+    border-color: #2d2d2d;
 }
 
 th {
-    background-color: #2d2d2d;
-    color: #03dac6;
-    font-weight: 600;
+    background: #1e1e1e; /* 表头底色：与代码块一致，视觉统一 */
+    color: #f0f0f0; /* 表头文字稍亮，突出表头功能 */
 }
 
 tr:nth-child(even) {
-    background-color: #252525;
+    background: #181818; /* 偶数行底色：比页面深一点，区分行但不割裂 */
 }
 
-/* 链接样式 */
+/* 6. 链接：低饱和蓝，避免高饱和色刺眼 */
 a {
-    color: #03a9f4;
-    text-decoration: none;
+    color: #8ab4f8; /* 比GitHub默认#58a6ff稍暗，更柔和 */
 }
 
 a:hover {
-    color: #2196f3;
+    color: #a8c7ff; /* hover时轻微提亮，反馈清晰但不突兀 */
     text-decoration: underline;
 }
 
-/* 水平线 */
+/* 7. 水平线：弱化分割，保持协调 */
 hr {
-    border: none;
-    border-top: 1px solid #333;
-    margin: 2em 0;
+    background: #2d2d2d; /* 与标题下划线同色，统一视觉语言 */
 }
 
-/* 图片样式 */
+/* 8. 图片：适配暗背景，避免白边突兀 */
 img {
-    max-width: 100%;
-    border-radius: 4px;
-    background-color: #2d2d2d;
-    padding: 4px;
-    border: 1px solid #333;
+    background-color: #121212; /* 与页面底色一致，避免图片透明时露白 */
+    /* 可选：为图片添加细边框，暗背景下更清晰 */
+    border: 1px solid rgba(70, 70, 70, 0.2);
 }
+
+/* 9. 任务列表：勾选框优化，暗部更清晰 */
+.markdown-body input[type="checkbox"] {
+    accent-color: #8ab4f8; /* 勾选色与链接色统一，风格一致 */
+    background-color: #1e1e1e; /* 未勾选框底色：与代码块一致 */
+    border: 1px solid #3d3d3d; /* 边框：区分勾选框与背景 */
+}
+
 """

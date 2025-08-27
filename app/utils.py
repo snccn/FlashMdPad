@@ -67,14 +67,14 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         # 行内代码
         inline_code_format = QTextCharFormat()
         inline_code_format.setFontFamily("Consolas")
-        inline_code_format.setBackground(QColor("#f5f5f5"))
+        inline_code_format.setBackground(QColor("#abb1b5"))
         inline_code_format.setForeground(QColor("#795548"))
         self._rules.append((QRegularExpression(r"`([^`]+)`"), inline_code_format))
 
         # 代码块（以```开头和结尾的整行）
         codeblock_format = QTextCharFormat()
         codeblock_format.setFontFamily("Consolas")
-        codeblock_format.setBackground(QColor("#eceff1"))
+        codeblock_format.setBackground(QColor("#abb1b5"))
         codeblock_format.setForeground(QColor("#263238"))
         self._rules.append((QRegularExpression(r"^```.*$"), codeblock_format))
 
@@ -149,7 +149,7 @@ class MarkdownTab(QWidget):
         self.editor.setObjectName("markdownEditor")
         self.editor.setLineWrapMode(QPlainTextEdit.LineWrapMode.WidgetWidth)
         ft = QFont(self.font_family)
-        ft.setPixelSize(self.font_size)
+        ft.setPointSize(self.font_size)
         self.set_editor_font(ft)
         
         self.editor.textChanged.connect(self.update_preview)
@@ -290,6 +290,7 @@ class MarkdownTab(QWidget):
         )
         css = DARK_THEME_CSS if self.dark_mode else LIGHT_THEME_CSS
         html = self.XSSCleaner.safe_markdown(html=html)
+        darkclass = "dark" if self.dark_mode else ""
         styled_html = f"""
         <!DOCTYPE html>
         <html>
@@ -300,7 +301,7 @@ class MarkdownTab(QWidget):
         </style>
         </head>
         <body>
-        <div class="markdown-body">
+        <div class="markdown-body {darkclass}">
         {html}
         </div>
         </body>
@@ -359,7 +360,8 @@ class XSSCleaner(object):
             'table': ['align', 'border'],
             'td': ['align'],
             'th': ['align'],
-            'input': ['type', 'checked']
+            'input': ['type', 'checked'],
+            'div': ['class']
         }
         self.cleaner = Cleaner(tags=self.allowed_tags,
                         attributes=self.allowed_attributes, 
